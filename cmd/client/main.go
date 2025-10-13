@@ -2,8 +2,7 @@ package main
 
 import (
 	"fmt"
-
-	"github.com/vignesh-j-shetty/GoDFS/internal/config"
+	"github.com/vignesh-j-shetty/GoDFS/internal/client/config"
 )
 
 func main() {
