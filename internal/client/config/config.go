@@ -36,14 +36,17 @@ func LoadConfig() (Config, error) {
 			return Config{}, fmt.Errorf("Failed to create deafult config with error %w", err)
 		}
 	}
+
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return Config{}, fmt.Errorf("failed to read config file : %w", err)
 	}
+
 	var cfg Config
 	if err := json.Unmarshal(data, &cfg); err != nil {
 		return Config{}, fmt.Errorf("parse config: %w", err)
 	}
+
 	return cfg, nil
 }
 
@@ -59,5 +62,6 @@ func getConfigPath() (string, error) {
 	if dir_err != nil {
 		return  "", fmt.Errorf("Failed to create dir with error %w", err)
 	}
+	
 	return filepath.Join(dir, "config.json"), nil
 }
