@@ -19,14 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	MetaDataService_Connect_FullMethodName = "/MetaDataService/Connect"
+	MetaDataService_Register_FullMethodName = "/MetaDataService/Register"
 )
 
 // MetaDataServiceClient is the client API for MetaDataService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MetaDataServiceClient interface {
-	Connect(ctx context.Context, in *ConnectRequest, opts ...grpc.CallOption) (*ConnectReply, error)
+	Register(ctx context.Context, in *ChunkServerInfo, opts ...grpc.CallOption) (*RegisterReply, error)
 }
 
 type metaDataServiceClient struct {
@@ -37,10 +37,10 @@ func NewMetaDataServiceClient(cc grpc.ClientConnInterface) MetaDataServiceClient
 	return &metaDataServiceClient{cc}
 }
 
-func (c *metaDataServiceClient) Connect(ctx context.Context, in *ConnectRequest, opts ...grpc.CallOption) (*ConnectReply, error) {
+func (c *metaDataServiceClient) Register(ctx context.Context, in *ChunkServerInfo, opts ...grpc.CallOption) (*RegisterReply, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ConnectReply)
-	err := c.cc.Invoke(ctx, MetaDataService_Connect_FullMethodName, in, out, cOpts...)
+	out := new(RegisterReply)
+	err := c.cc.Invoke(ctx, MetaDataService_Register_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func (c *metaDataServiceClient) Connect(ctx context.Context, in *ConnectRequest,
 // All implementations must embed UnimplementedMetaDataServiceServer
 // for forward compatibility.
 type MetaDataServiceServer interface {
-	Connect(context.Context, *ConnectRequest) (*ConnectReply, error)
+	Register(context.Context, *ChunkServerInfo) (*RegisterReply, error)
 	mustEmbedUnimplementedMetaDataServiceServer()
 }
 
@@ -62,8 +62,8 @@ type MetaDataServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedMetaDataServiceServer struct{}
 
-func (UnimplementedMetaDataServiceServer) Connect(context.Context, *ConnectRequest) (*ConnectReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Connect not implemented")
+func (UnimplementedMetaDataServiceServer) Register(context.Context, *ChunkServerInfo) (*RegisterReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
 }
 func (UnimplementedMetaDataServiceServer) mustEmbedUnimplementedMetaDataServiceServer() {}
 func (UnimplementedMetaDataServiceServer) testEmbeddedByValue()                         {}
@@ -86,20 +86,20 @@ func RegisterMetaDataServiceServer(s grpc.ServiceRegistrar, srv MetaDataServiceS
 	s.RegisterService(&MetaDataService_ServiceDesc, srv)
 }
 
-func _MetaDataService_Connect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ConnectRequest)
+func _MetaDataService_Register_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChunkServerInfo)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MetaDataServiceServer).Connect(ctx, in)
+		return srv.(MetaDataServiceServer).Register(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: MetaDataService_Connect_FullMethodName,
+		FullMethod: MetaDataService_Register_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MetaDataServiceServer).Connect(ctx, req.(*ConnectRequest))
+		return srv.(MetaDataServiceServer).Register(ctx, req.(*ChunkServerInfo))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -112,8 +112,8 @@ var MetaDataService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*MetaDataServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Connect",
-			Handler:    _MetaDataService_Connect_Handler,
+			MethodName: "Register",
+			Handler:    _MetaDataService_Register_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

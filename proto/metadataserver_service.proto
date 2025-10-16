@@ -1,15 +1,15 @@
 syntax = "proto3";
 option go_package = "github.com/vignesh-j-shetty/GoDFS/pkg/rpc";
 
-message ConnectRequest {
+message ChunkServerInfo {
     string server_id = 1;
 }
 
-message ConnectReply {
+message RegisterReply {
     string status = 1;
     string error_msg = 2;
 }
 
 service MetaDataService {
-    rpc Connect(ConnectRequest) returns (ConnectReply) {}
+    rpc Register(ChunkServerInfo) returns (RegisterReply) {}
 }

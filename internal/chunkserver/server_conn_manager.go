@@ -34,8 +34,8 @@ func NewServerConnector() (ServerConnectionManager, error) {
 }
 
 func (sc *ServerConnectionManagerImpl) ConnectWithServer() error {
-	req := &pb.ConnectRequest {ServerId: "jcdshhvb"}
-	reply, err := sc.client.Connect(sc.ctx, req)
+	req := &pb.ChunkServerInfo {ServerId: "jcdshhvb"}
+	reply, err := sc.client.Register(sc.ctx, req)
 
 	if err != nil {
 		return fmt.Errorf("RETURN RPC FAILED %w", err)

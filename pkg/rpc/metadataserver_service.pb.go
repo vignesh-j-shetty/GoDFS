@@ -21,27 +21,27 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type ConnectRequest struct {
+type ChunkServerInfo struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ServerId      string                 `protobuf:"bytes,1,opt,name=server_id,json=serverId,proto3" json:"server_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ConnectRequest) Reset() {
-	*x = ConnectRequest{}
+func (x *ChunkServerInfo) Reset() {
+	*x = ChunkServerInfo{}
 	mi := &file_proto_metadataserver_service_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ConnectRequest) String() string {
+func (x *ChunkServerInfo) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ConnectRequest) ProtoMessage() {}
+func (*ChunkServerInfo) ProtoMessage() {}
 
-func (x *ConnectRequest) ProtoReflect() protoreflect.Message {
+func (x *ChunkServerInfo) ProtoReflect() protoreflect.Message {
 	mi := &file_proto_metadataserver_service_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -53,19 +53,19 @@ func (x *ConnectRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ConnectRequest.ProtoReflect.Descriptor instead.
-func (*ConnectRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ChunkServerInfo.ProtoReflect.Descriptor instead.
+func (*ChunkServerInfo) Descriptor() ([]byte, []int) {
 	return file_proto_metadataserver_service_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *ConnectRequest) GetServerId() string {
+func (x *ChunkServerInfo) GetServerId() string {
 	if x != nil {
 		return x.ServerId
 	}
 	return ""
 }
 
-type ConnectReply struct {
+type RegisterReply struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Status        string                 `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
 	ErrorMsg      string                 `protobuf:"bytes,2,opt,name=error_msg,json=errorMsg,proto3" json:"error_msg,omitempty"`
@@ -73,20 +73,20 @@ type ConnectReply struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ConnectReply) Reset() {
-	*x = ConnectReply{}
+func (x *RegisterReply) Reset() {
+	*x = RegisterReply{}
 	mi := &file_proto_metadataserver_service_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ConnectReply) String() string {
+func (x *RegisterReply) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ConnectReply) ProtoMessage() {}
+func (*RegisterReply) ProtoMessage() {}
 
-func (x *ConnectReply) ProtoReflect() protoreflect.Message {
+func (x *RegisterReply) ProtoReflect() protoreflect.Message {
 	mi := &file_proto_metadataserver_service_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -98,19 +98,19 @@ func (x *ConnectReply) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ConnectReply.ProtoReflect.Descriptor instead.
-func (*ConnectReply) Descriptor() ([]byte, []int) {
+// Deprecated: Use RegisterReply.ProtoReflect.Descriptor instead.
+func (*RegisterReply) Descriptor() ([]byte, []int) {
 	return file_proto_metadataserver_service_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ConnectReply) GetStatus() string {
+func (x *RegisterReply) GetStatus() string {
 	if x != nil {
 		return x.Status
 	}
 	return ""
 }
 
-func (x *ConnectReply) GetErrorMsg() string {
+func (x *RegisterReply) GetErrorMsg() string {
 	if x != nil {
 		return x.ErrorMsg
 	}
@@ -121,14 +121,14 @@ var File_proto_metadataserver_service_proto protoreflect.FileDescriptor
 
 const file_proto_metadataserver_service_proto_rawDesc = "" +
 	"\n" +
-	"\"proto/metadataserver_service.proto\"-\n" +
-	"\x0eConnectRequest\x12\x1b\n" +
-	"\tserver_id\x18\x01 \x01(\tR\bserverId\"C\n" +
-	"\fConnectReply\x12\x16\n" +
+	"\"proto/metadataserver_service.proto\".\n" +
+	"\x0fChunkServerInfo\x12\x1b\n" +
+	"\tserver_id\x18\x01 \x01(\tR\bserverId\"D\n" +
+	"\rRegisterReply\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\tR\x06status\x12\x1b\n" +
-	"\terror_msg\x18\x02 \x01(\tR\berrorMsg2>\n" +
-	"\x0fMetaDataService\x12+\n" +
-	"\aConnect\x12\x0f.ConnectRequest\x1a\r.ConnectReply\"\x00B+Z)github.com/vignesh-j-shetty/GoDFS/pkg/rpcb\x06proto3"
+	"\terror_msg\x18\x02 \x01(\tR\berrorMsg2A\n" +
+	"\x0fMetaDataService\x12.\n" +
+	"\bRegister\x12\x10.ChunkServerInfo\x1a\x0e.RegisterReply\"\x00B+Z)github.com/vignesh-j-shetty/GoDFS/pkg/rpcb\x06proto3"
 
 var (
 	file_proto_metadataserver_service_proto_rawDescOnce sync.Once
@@ -144,12 +144,12 @@ func file_proto_metadataserver_service_proto_rawDescGZIP() []byte {
 
 var file_proto_metadataserver_service_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_proto_metadataserver_service_proto_goTypes = []any{
-	(*ConnectRequest)(nil), // 0: ConnectRequest
-	(*ConnectReply)(nil),   // 1: ConnectReply
+	(*ChunkServerInfo)(nil), // 0: ChunkServerInfo
+	(*RegisterReply)(nil),   // 1: RegisterReply
 }
 var file_proto_metadataserver_service_proto_depIdxs = []int32{
-	0, // 0: MetaDataService.Connect:input_type -> ConnectRequest
-	1, // 1: MetaDataService.Connect:output_type -> ConnectReply
+	0, // 0: MetaDataService.Register:input_type -> ChunkServerInfo
+	1, // 1: MetaDataService.Register:output_type -> RegisterReply
 	1, // [1:2] is the sub-list for method output_type
 	0, // [0:1] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
