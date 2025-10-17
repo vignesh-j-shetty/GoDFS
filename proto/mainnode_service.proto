@@ -1,0 +1,16 @@
+syntax = "proto3";
+option go_package = "github.com/vignesh-j-shetty/GoDFS/pkg/api";
+
+message DataNodeInfo {
+    string server_id = 1;
+    string rpc_endpoint = 2;
+}
+
+message RegisterReply {
+    string status = 1;
+    string error_msg = 2;
+}
+
+service MainNodeService {
+    rpc Register(DataNodeInfo) returns (RegisterReply) {}
+}

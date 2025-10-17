@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"github.com/vignesh-j-shetty/GoDFS/internal/metadataserver"
-	pb "github.com/vignesh-j-shetty/GoDFS/pkg/rpc"
+	"github.com/vignesh-j-shetty/GoDFS/internal/mainnode"
+	pb "github.com/vignesh-j-shetty/GoDFS/pkg/api"
 	"google.golang.org/grpc"
 )
 
@@ -15,7 +15,7 @@ func main() {
 		fmt.Printf("%s", err.Error());
 	}
 	s := grpc.NewServer()
-	pb.RegisterMetaDataServiceServer(s, metadataserver.MetaDataService {})
+	pb.RegisterMainNodeServiceServer(s, mainnode.MetaDataService{})
 	fmt.Printf("Starting to listen at 5151")
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)

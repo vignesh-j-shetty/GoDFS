@@ -2,18 +2,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug Chunk Server",
+            "name": "Debug DataNode",
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "./cmd/chunk_server/main.go"
+            "program": "./cmd/datanode/main.go"
         },
         {
-            "name": "Debug MetaData Server",
+            "name": "Debug MainNode",
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "./cmd/metadata-server/main.go"
+            "program": "./cmd/mainnode/main.go"
         }
     ]
 }
