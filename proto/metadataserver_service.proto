@@ -3,6 +3,7 @@ option go_package = "github.com/vignesh-j-shetty/GoDFS/pkg/rpc";
 
 message ChunkServerInfo {
     string server_id = 1;
+    string rpc_endpoint = 2;
 }
 
 message RegisterReply {

@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"time"
+
 	pb "github.com/vignesh-j-shetty/GoDFS/pkg/rpc"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 type ServerConnectionManager interface {
@@ -19,7 +21,7 @@ type ServerConnectionManagerImpl struct {
 }
 
 func NewServerConnector() (ServerConnectionManager, error) {
-	conn, err := grpc.NewClient(":5151")
+	conn, err := grpc.NewClient(":5151", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, fmt.Errorf("CONNECTION TO METADATA SERVER FAILED WITH ERROR %w", err)
 	}
@@ -34,7 +36,7 @@ func NewServerConnector() (ServerConnectionManager, error) {
 }
 
 func (sc *ServerConnectionManagerImpl) ConnectWithServer() error {
-	req := &pb.ChunkServerInfo {ServerId: "jcdshhvb"}
+	req := &pb.ChunkServerInfo {ServerId: "jcdshhvb", RpcEndpoint: "0.0.0.0:8080"}
 	reply, err := sc.client.Register(sc.ctx, req)
 
 	if err != nil {

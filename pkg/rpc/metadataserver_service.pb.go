@@ -24,6 +24,7 @@ const (
 type ChunkServerInfo struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ServerId      string                 `protobuf:"bytes,1,opt,name=server_id,json=serverId,proto3" json:"server_id,omitempty"`
+	RpcEndpoint   string                 `protobuf:"bytes,2,opt,name=rpc_endpoint,json=rpcEndpoint,proto3" json:"rpc_endpoint,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -61,6 +62,13 @@ func (*ChunkServerInfo) Descriptor() ([]byte, []int) {
 func (x *ChunkServerInfo) GetServerId() string {
 	if x != nil {
 		return x.ServerId
+	}
+	return ""
+}
+
+func (x *ChunkServerInfo) GetRpcEndpoint() string {
+	if x != nil {
+		return x.RpcEndpoint
 	}
 	return ""
 }
@@ -121,9 +129,10 @@ var File_proto_metadataserver_service_proto protoreflect.FileDescriptor
 
 const file_proto_metadataserver_service_proto_rawDesc = "" +
 	"\n" +
-	"\"proto/metadataserver_service.proto\".\n" +
+	"\"proto/metadataserver_service.proto\"Q\n" +
 	"\x0fChunkServerInfo\x12\x1b\n" +
-	"\tserver_id\x18\x01 \x01(\tR\bserverId\"D\n" +
+	"\tserver_id\x18\x01 \x01(\tR\bserverId\x12!\n" +
+	"\frpc_endpoint\x18\x02 \x01(\tR\vrpcEndpoint\"D\n" +
 	"\rRegisterReply\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\tR\x06status\x12\x1b\n" +
 	"\terror_msg\x18\x02 \x01(\tR\berrorMsg2A\n" +
