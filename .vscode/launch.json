@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Chunk Server",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "./cmd/chunk_server/main.go"
+        },
+        {
+            "name": "Debug MetaData Server",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "./cmd/metadata-server/main.go"
+        }
+    ]
+}

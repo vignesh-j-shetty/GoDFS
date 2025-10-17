@@ -3,6 +3,7 @@ module github.com/vignesh-j-shetty/GoDFS
 go 1.24.6
 
 require (
+	github.com/google/uuid v1.6.0
 	google.golang.org/grpc v1.76.0
 	google.golang.org/protobuf v1.36.9
 )

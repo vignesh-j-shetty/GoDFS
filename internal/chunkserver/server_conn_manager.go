@@ -8,6 +8,7 @@ import (
 	pb "github.com/vignesh-j-shetty/GoDFS/pkg/rpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"github.com/google/uuid"
 )
 
 type ServerConnectionManager interface {
@@ -15,9 +16,7 @@ type ServerConnectionManager interface {
 }
 
 type ServerConnectionManagerImpl struct {
-	ctx context.Context
 	client pb.MetaDataServiceClient
-	cancel context.CancelFunc
 }
 
 func NewServerConnector() (ServerConnectionManager, error) {
@@ -26,23 +25,26 @@ func NewServerConnector() (ServerConnectionManager, error) {
 		return nil, fmt.Errorf("CONNECTION TO METADATA SERVER FAILED WITH ERROR %w", err)
 	}
 	c := pb.NewMetaDataServiceClient(conn)
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 
 	return &ServerConnectionManagerImpl {
-		ctx: ctx,
 		client: c,
-		cancel: cancel,
 	}, nil
 }
 
 func (sc *ServerConnectionManagerImpl) ConnectWithServer() error {
-	req := &pb.ChunkServerInfo {ServerId: "jcdshhvb", RpcEndpoint: "0.0.0.0:8080"}
-	reply, err := sc.client.Register(sc.ctx, req)
+	id := uuid.New()
+	req := &pb.ChunkServerInfo {ServerId: id.String(), RpcEndpoint: "0.0.0.0:8080"}
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	reply, err := sc.client.Register(ctx, req)
 
 	if err != nil {
+		if ctx.Err() == context.DeadlineExceeded {
+			return fmt.Errorf("RETURN RPC FAILED: Context deadline exceeded %w", err)
+        }
 		return fmt.Errorf("RETURN RPC FAILED %w", err)
 	}
-
-	println("%s", reply.GetStatus())
+	
+	println(reply.GetStatus())
 	return nil
 }
