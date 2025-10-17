@@ -4,19 +4,30 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"github.com/joho/godotenv"
 	"github.com/vignesh-j-shetty/GoDFS/internal/mainnode"
 	pb "github.com/vignesh-j-shetty/GoDFS/pkg/api"
 	"google.golang.org/grpc"
 )
 
 func main() {
+	_ = godotenv.Load()
 	lis, err := net.Listen("tcp", ":5151")
+
 	if err != nil {
 		fmt.Printf("%s", err.Error());
 	}
+
 	s := grpc.NewServer()
-	pb.RegisterMainNodeServiceServer(s, mainnode.MainNodeService{})
+	mainNodeService, err := mainnode.NewMainNodeService()
+
+	if err != nil {
+		fmt.Printf("Error while starting MainNode Service %s", err.Error())
+	}
+
+	pb.RegisterMainNodeServiceServer(s, mainNodeService)
 	fmt.Printf("Starting to listen at 5151")
+	
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}

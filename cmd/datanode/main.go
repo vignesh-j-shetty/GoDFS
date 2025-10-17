@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-
 	"github.com/vignesh-j-shetty/GoDFS/internal/datanode"
 )
 
@@ -12,6 +11,8 @@ func main() {
 	if err != nil {
 		fmt.Printf("Failed to connect : %s", err)
 	}
-
-	connection.ConnectWithServer()
+	err = connection.ConnectWithServer()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 }
