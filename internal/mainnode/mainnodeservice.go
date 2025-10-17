@@ -6,13 +6,13 @@ import (
 	pb "github.com/vignesh-j-shetty/GoDFS/pkg/api"
 )
 
-type MetaDataService struct {
+type MainNodeService struct {
 	pb.UnimplementedMainNodeServiceServer
 }
 
 // Register implements rpc.MetaDataServiceServer.
-func (mds MetaDataService) Register(ctx context.Context, chunkServerInfo *pb.DataNodeInfo) (*pb.RegisterReply, error) {
+func (mds MainNodeService) Register(ctx context.Context, dataNodeInfo *pb.DataNodeInfo) (*pb.RegisterReply, error) {
 	reply := pb.RegisterReply{Status: "SUCCESS"}
-	fmt.Println(chunkServerInfo.ServerId)
+	fmt.Println(dataNodeInfo.NodeId)
 	return &reply, nil
 }

@@ -15,7 +15,7 @@ func main() {
 		fmt.Printf("%s", err.Error());
 	}
 	s := grpc.NewServer()
-	pb.RegisterMainNodeServiceServer(s, mainnode.MetaDataService{})
+	pb.RegisterMainNodeServiceServer(s, mainnode.MainNodeService{})
 	fmt.Printf("Starting to listen at 5151")
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)

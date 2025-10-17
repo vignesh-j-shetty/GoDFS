@@ -23,7 +23,7 @@ const (
 
 type DataNodeInfo struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ServerId      string                 `protobuf:"bytes,1,opt,name=server_id,json=serverId,proto3" json:"server_id,omitempty"`
+	NodeId        string                 `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
 	RpcEndpoint   string                 `protobuf:"bytes,2,opt,name=rpc_endpoint,json=rpcEndpoint,proto3" json:"rpc_endpoint,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -59,9 +59,9 @@ func (*DataNodeInfo) Descriptor() ([]byte, []int) {
 	return file_proto_mainnode_service_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *DataNodeInfo) GetServerId() string {
+func (x *DataNodeInfo) GetNodeId() string {
 	if x != nil {
-		return x.ServerId
+		return x.NodeId
 	}
 	return ""
 }
@@ -129,9 +129,9 @@ var File_proto_mainnode_service_proto protoreflect.FileDescriptor
 
 const file_proto_mainnode_service_proto_rawDesc = "" +
 	"\n" +
-	"\x1cproto/mainnode_service.proto\"N\n" +
-	"\fDataNodeInfo\x12\x1b\n" +
-	"\tserver_id\x18\x01 \x01(\tR\bserverId\x12!\n" +
+	"\x1cproto/mainnode_service.proto\"J\n" +
+	"\fDataNodeInfo\x12\x17\n" +
+	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12!\n" +
 	"\frpc_endpoint\x18\x02 \x01(\tR\vrpcEndpoint\"D\n" +
 	"\rRegisterReply\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\tR\x06status\x12\x1b\n" +
