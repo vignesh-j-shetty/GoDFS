@@ -2,8 +2,7 @@ package mainnode
 
 import (
 	"context"
-	"os"
-
+	"github.com/vignesh-j-shetty/GoDFS/internal/mainnode/config"
 	"github.com/vignesh-j-shetty/GoDFS/internal/mainnode/repository"
 	pb "github.com/vignesh-j-shetty/GoDFS/pkg/api"
 )
@@ -14,7 +13,8 @@ type MainNodeServiceImpl struct {
 }
 
 func NewMainNodeService() (*MainNodeServiceImpl, error) {
-	repo, err := repository.NewDataNodeRepositoryPostgres(os.Getenv("DATABASE_URL"))
+	config := config.InitConfig()
+	repo, err := repository.NewDataNodeRepositoryPostgres(config)
 	if err != nil {
 		return nil, err
 	}
@@ -25,15 +25,22 @@ func NewMainNodeService() (*MainNodeServiceImpl, error) {
 
 // Register implements rpc.MetaDataServiceServer.
 func (mds MainNodeServiceImpl) Register(ctx context.Context, dataNodeInfo *pb.DataNodeInfo) (*pb.RegisterReply, error) {
+
 	data := repository.DataNode {
 		NodeId: dataNodeInfo.NodeId,
 		RpcEndpoint: dataNodeInfo.RpcEndpoint,
-		Role: "PRIMARY",
+		Role: "",
 	}
-	err := mds.repository.InsertDataNode(ctx, data)
+
+	err := mds.repository.CreateDataNode(ctx, data)
 	if err != nil {
+		if err == repository.ErrDuplicateDataNode {
+			err = mds.repository.UpdateRpcEndpoint(ctx, data.NodeId, data.RpcEndpoint)
+			if err != nil {
+				return &pb.RegisterReply{Status: "FAILURE", ErrorMsg: err.Error()}, nil
+			}
+		}
 		return nil, err
 	}
-	reply := pb.RegisterReply{Status: "SUCCESS"}
-	return &reply, nil
+	return &pb.RegisterReply{Status: "SUCCESS"}, nil
 }

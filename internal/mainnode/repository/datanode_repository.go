@@ -1,6 +1,14 @@
 package repository
 
-import "context"
+import (
+	"context"
+	"errors"
+)
+
+var (
+    ErrDuplicateDataNode      = errors.New("data node already exists")
+    ErrDataNodeNotFound       = errors.New("data node not found") 
+)
 
 type DataNode struct {
 	NodeId      string
@@ -9,5 +17,8 @@ type DataNode struct {
 }
 
 type DataNodeRepository interface {
-	InsertDataNode(context.Context, DataNode) error
+	// Inserts/Creates new entry in DataNode table
+	CreateDataNode(context.Context, DataNode) error
+	// Updates DataNode row
+	UpdateRpcEndpoint(ctx context.Context, nodeID string, rcpEndpoint string) error
 }
