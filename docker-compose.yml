@@ -29,3 +29,5 @@ services:
       context: .
       dockerfile: Dockerfile
       target: datanode-runtime
+    environment:
+      MAINNODE_URL: ${MAINNODE_URL}
