@@ -4,19 +4,23 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/vignesh-j-shetty/GoDFS/internal/mainnode/config"
 )
 
+const baseSleep = 100 * time.Millisecond
+
 type DataNodeRepositoryPostgres struct {
-	conn   *pgx.Conn
+	conn   *pgxpool.Pool
 	config config.Config
 }
 
 func NewDataNodeRepositoryPostgres(config config.Config) (*DataNodeRepositoryPostgres, error) {
-	conn, err := pgx.Connect(context.Background(), config.DatabaseURL)
+	conn, err := pgxpool.New(context.Background(), config.DatabaseURL)
 	if err != nil {
 		return nil, err
 	}
@@ -30,45 +34,66 @@ func (repository DataNodeRepositoryPostgres) CreateDataNode(ctx context.Context,
 	txOptions := pgx.TxOptions{
 		IsoLevel: pgx.Serializable,
 	}
-	
-	tx, err := repository.conn.BeginTx(ctx, txOptions)
-	defer func() {
-        if rbe := tx.Rollback(ctx); rbe != nil && rbe != pgx.ErrTxClosed {
-            // Log the rollback error if it's not the expected "already closed" error
-            log.Printf("Warning: Failed to rollback transaction: %v", rbe)
-        }
-    }()
-
-	if err != nil {
-		return fmt.Errorf("unable to create transaction %w", err)
-	}
-
-	var primaryCount int = 0
-	if err := tx.QueryRow(ctx, "SELECT COUNT(*) FROM CHUNK_SERVER WHERE ROLE = 'PRIMARY'").Scan(&primaryCount); err != nil {
-		return fmt.Errorf("%w", err)
-	}
-
-	var nodeType string
-	if primaryCount < repository.config.DataNodeCount {
-		nodeType = "PRIMARY"
-	} else {
-		nodeType = "REPLICA"
-	}
-
-	insertQuery := "INSERT INTO CHUNK_SERVER (SERVER_ID, RPC_ENDPOINT, ROLE) VALUES ($1, $2, $3)"
-	_, err = tx.Exec(ctx, insertQuery, dataNode.NodeId, dataNode.RpcEndpoint, nodeType)
-	if err != nil {
-		if pgErr, ok := err.(*pgconn.PgError); ok && pgErr.Code == "23505" {
-			return ErrDuplicateDataNode
+	// 3 is Max number of retry
+	for i := range 3 {
+		tx, err := repository.conn.BeginTx(ctx, txOptions)
+		defer func() {
+			if tx == nil {
+			log.Printf("tansaction creation failed")
+			return
+			}
+			if err != nil {
+				log.Printf("transaction creation error %s", err.Error())
+				return
+			}
+        	if rbe := tx.Rollback(ctx); rbe != nil && rbe != pgx.ErrTxClosed {
+            	// Log the rollback error if it's not the expected "already closed" error
+            	log.Printf("Warning: Failed to rollback transaction: %v", rbe)
+        	}
+    	}()
+		if err != nil {
+			return fmt.Errorf("unable to create transaction %w", err)
 		}
-		log.Printf("Unhandled db error %s ", err.Error())
-		return fmt.Errorf("DATABASE ERROR : %w", err)
+		var primaryCount int = 0
+		if err := tx.QueryRow(ctx, "SELECT COUNT(*) FROM CHUNK_SERVER WHERE ROLE = 'PRIMARY'").Scan(&primaryCount); err != nil {
+			return fmt.Errorf("%w", err)
+		}
+
+		var nodeType string
+		if primaryCount < repository.config.DataNodeCount {
+			nodeType = "PRIMARY"
+		} else {
+			nodeType = "REPLICA"
+		}
+
+		insertQuery := "INSERT INTO CHUNK_SERVER (SERVER_ID, RPC_ENDPOINT, ROLE) VALUES ($1, $2, $3)"
+		_, err = tx.Exec(ctx, insertQuery, dataNode.NodeId, dataNode.RpcEndpoint, nodeType)
+
+
+		if err != nil {
+			if pgErr, ok := err.(*pgconn.PgError); ok {
+				if pgErr.Code == "23505" {
+					return ErrDuplicateDataNode
+				}
+				if pgErr.Code == "40001" {
+					sleepDuration := baseSleep * time.Duration(1<<i)
+					time.Sleep(sleepDuration)
+					continue
+				}
+			}
+			log.Printf("Unhandled db error %s ", err.Error())
+			return fmt.Errorf("DATABASE ERROR : %w", err)
+		}
+
+		if err := tx.Commit(ctx); err != nil {
+        	if pgErr, ok := err.(*pgconn.PgError); ok && pgErr.Code == "40001" {
+				sleepDuration := baseSleep * time.Duration(1<<i)
+				time.Sleep(sleepDuration)
+				continue
+			}
+    	}
+		return nil
 	}
-
-	if err := tx.Commit(ctx); err != nil {
-        return fmt.Errorf("failed to commit transaction: %w", err)
-    }
-
 	return nil
 }
 

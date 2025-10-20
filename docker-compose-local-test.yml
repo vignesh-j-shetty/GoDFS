@@ -1,0 +1,77 @@
+services:
+  postgres:
+    image: postgres:latest
+    container_name: metadata_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB:  ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} -h localhost"]
+      interval: 30s
+      timeout: 30s
+      retries: 5
+      start_period: 5s
+  
+  mainnode:
+    container_name: mainnode
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: mainnode-runtime
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      DATANODE_COUNT: ${DATANODE_COUNT}
+    restart: always
+    ports:
+      - "5151:5151"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 5151 || exit 1"]
+      interval: 3s
+      timeout: 30s
+      retries: 5
+      start_period: 5s
+  datanode1:
+    container_name: datanode1
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: datanode-runtime
+    depends_on:
+      mainnode:
+        condition: service_healthy
+  datanode2:
+    container_name: datanode2
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: datanode-runtime
+    depends_on:
+      mainnode:
+        condition: service_healthy
+  datanode3:
+    container_name: datanode3
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: datanode-runtime
+    depends_on:
+      mainnode:
+        condition: service_healthy
+  datanode4:
+    container_name: datanode4
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: datanode-runtime
+    depends_on:
+      mainnode:
+        condition: service_healthy
