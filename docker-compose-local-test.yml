@@ -17,7 +17,6 @@ services:
       timeout: 30s
       retries: 5
       start_period: 5s
-  
   mainnode:
     container_name: mainnode
     build:
@@ -29,12 +28,12 @@ services:
       DATANODE_COUNT: ${DATANODE_COUNT}
     restart: always
     ports:
-      - "5151:5151"
+      - "8080:8080"
     depends_on:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "nc -z localhost 5151 || exit 1"]
+      test: ["CMD-SHELL", "nc -z localhost 8080 || exit 1"]
       interval: 3s
       timeout: 30s
       retries: 5
@@ -47,9 +46,14 @@ services:
       target: datanode-runtime
     environment:
       MAINNODE_URL: ${MAINNODE_URL}
+      SELF_URL: datanode1:5000
+      ROOT_DATA_FOLDER: ${ROOT_DATA_FOLDER}
+      LISTEN_PORT: 5000
     depends_on:
       mainnode:
         condition: service_healthy
+    tmpfs:
+      - /data:size=1G
   datanode2:
     container_name: datanode2
     build:
@@ -58,9 +62,14 @@ services:
       target: datanode-runtime
     environment:
       MAINNODE_URL: ${MAINNODE_URL}
+      SELF_URL: datanode2:5001
+      ROOT_DATA_FOLDER: ${ROOT_DATA_FOLDER}
+      LISTEN_PORT: 5001
     depends_on:
       mainnode:
         condition: service_healthy
+    tmpfs:
+      - /data:size=1G
   datanode3:
     container_name: datanode3
     build:
@@ -69,6 +78,11 @@ services:
       target: datanode-runtime
     environment:
       MAINNODE_URL: ${MAINNODE_URL}
+      SELF_URL: datanode2:5002
+      ROOT_DATA_FOLDER: ${ROOT_DATA_FOLDER}
+      LISTEN_PORT: 5002
     depends_on:
       mainnode:
         condition: service_healthy
+    tmpfs:
+      - /data:size=1G

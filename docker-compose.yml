@@ -22,7 +22,7 @@ services:
       DATABASE_URL: ${DATABASE_URL}
       DATANODE_COUNT: ${DATANODE_COUNT}
     ports:
-      - "5151:5151"
+      - "8080:8080"
   datanode:
     container_name: datanode
     build:

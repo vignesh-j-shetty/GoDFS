@@ -15,7 +15,7 @@ type Config struct {
 
 func defaultConfig() Config {
 	return Config{
-		MetadataServer:     "http://localhost:8080",
+		MetadataServer:     "http://localhost:5151",
 		DefaultConcurrency: runtime.NumCPU(),
 	}
 }

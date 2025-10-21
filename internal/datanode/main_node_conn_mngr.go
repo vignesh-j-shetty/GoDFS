@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 	"time"
-
-	"github.com/google/uuid"
 	"github.com/vignesh-j-shetty/GoDFS/internal/datanode/config"
 	pb "github.com/vignesh-j-shetty/GoDFS/pkg/api"
 	"google.golang.org/grpc"
@@ -18,6 +16,7 @@ type MainNodeConnectionManager interface {
 
 type MainNodeConnectionManagerImpl struct {
 	client pb.MainNodeServiceClient
+	config config.Config
 }
 
 func NewMainNodeConnector(config config.Config) (MainNodeConnectionManager, error) {
@@ -30,6 +29,7 @@ func NewMainNodeConnector(config config.Config) (MainNodeConnectionManager, erro
 
 	return &MainNodeConnectionManagerImpl{
 		client: c,
+		config: config,
 	}, nil
 }
 
@@ -37,8 +37,8 @@ func (sc *MainNodeConnectionManagerImpl) ConnectWithServer() error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second * 300)
 	defer cancel()
 
-	id := uuid.New()
-	req := &pb.DataNodeInfo{NodeId: id.String(), RpcEndpoint: "0.0.0.0:8080"}
+	
+	req := &pb.DataNodeInfo{NodeId: GetNodeId(sc.config.RootDataFolder), RpcEndpoint: sc.config.SelfUrl}
 	reply, err := sc.client.Register(ctx, req)
 
 	if err != nil {

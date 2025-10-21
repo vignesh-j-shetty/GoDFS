@@ -55,7 +55,7 @@ func (repository DataNodeRepositoryPostgres) CreateDataNode(ctx context.Context,
 			return fmt.Errorf("unable to create transaction %w", err)
 		}
 		var primaryCount int = 0
-		if err := tx.QueryRow(ctx, "SELECT COUNT(*) FROM CHUNK_SERVER WHERE ROLE = 'PRIMARY'").Scan(&primaryCount); err != nil {
+		if err := tx.QueryRow(ctx, "SELECT COUNT(*) FROM DATA_NODES WHERE ROLE = 'PRIMARY'").Scan(&primaryCount); err != nil {
 			return fmt.Errorf("%w", err)
 		}
 
@@ -66,7 +66,7 @@ func (repository DataNodeRepositoryPostgres) CreateDataNode(ctx context.Context,
 			nodeType = "REPLICA"
 		}
 
-		insertQuery := "INSERT INTO CHUNK_SERVER (SERVER_ID, RPC_ENDPOINT, ROLE) VALUES ($1, $2, $3)"
+		insertQuery := "INSERT INTO DATA_NODES (SERVER_ID, RPC_ENDPOINT, ROLE) VALUES ($1, $2, $3)"
 		_, err = tx.Exec(ctx, insertQuery, dataNode.NodeId, dataNode.RpcEndpoint, nodeType)
 
 
@@ -98,7 +98,7 @@ func (repository DataNodeRepositoryPostgres) CreateDataNode(ctx context.Context,
 }
 
 func (repository DataNodeRepositoryPostgres) UpdateRpcEndpoint(ctx context.Context, nodeID string, rcpEndpoint string) error {
-	query := "UPDATE CHUNK_SERVER SET RPC_ENDPOINT = $1, WHERE SERVER_ID = $2"
+	query := "UPDATE DATA_NODES SET RPC_ENDPOINT = $1, WHERE SERVER_ID = $2"
 	result, err := repository.conn.Exec(ctx, query, rcpEndpoint, nodeID)
 
 	if err != nil {

@@ -12,7 +12,7 @@ import (
 
 func main() {
 	_ = godotenv.Load()
-	lis, err := net.Listen("tcp", ":5151")
+	lis, err := net.Listen("tcp", ":8080")
 
 	if err != nil {
 		fmt.Printf("%s", err.Error());
