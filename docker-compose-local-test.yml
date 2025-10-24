@@ -1,22 +1,4 @@
 services:
-  postgres:
-    image: postgres:latest
-    container_name: metadata_db
-    restart: always
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB:  ${POSTGRES_DB}
-    ports:
-      - "5432:5432"
-    volumes:
-      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} -h localhost"]
-      interval: 30s
-      timeout: 30s
-      retries: 5
-      start_period: 5s
   mainnode:
     container_name: mainnode
     build:
@@ -29,9 +11,6 @@ services:
     restart: always
     ports:
       - "8080:8080"
-    depends_on:
-      postgres:
-        condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "nc -z localhost 8080 || exit 1"]
       interval: 3s

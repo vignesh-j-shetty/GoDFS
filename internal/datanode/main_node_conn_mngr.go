@@ -38,7 +38,7 @@ func (sc *MainNodeConnectionManagerImpl) ConnectWithServer() error {
 	defer cancel()
 
 	
-	req := &pb.DataNodeInfo{NodeId: GetNodeId(sc.config.RootDataFolder), RpcEndpoint: sc.config.SelfUrl}
+	req := &pb.DataNodeInfo{RpcEndpoint: sc.config.SelfUrl}
 	reply, err := sc.client.Register(ctx, req)
 
 	if err != nil {

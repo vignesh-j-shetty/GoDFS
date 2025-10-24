@@ -1,17 +1,4 @@
-services:
-  postgres:
-    image: postgres:latest
-    container_name: metadata_db
-    restart: always
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB:  ${POSTGRES_DB}
-    ports:
-      - "5432:5432"
-    volumes:
-      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
-  
+services:  
   mainnode:
     container_name: mainnode
     build:

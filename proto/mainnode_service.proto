@@ -2,8 +2,7 @@ syntax = "proto3";
 option go_package = "github.com/vignesh-j-shetty/GoDFS/pkg/api";
 
 message DataNodeInfo {
-    string node_id = 1;
-    string rpc_endpoint = 2;
+    string rpc_endpoint = 1;
 }
 
 message RegisterReply {

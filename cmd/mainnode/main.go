@@ -26,8 +26,8 @@ func main() {
 	}
 
 	pb.RegisterMainNodeServiceServer(s, mainNodeService)
-	fmt.Printf("Starting to listen at 5151")
-	
+	fmt.Printf("Starting to listen at 8080")
+
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}

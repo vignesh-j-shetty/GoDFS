@@ -10,7 +10,7 @@ type MainNodeServiceImpl struct {
 }
 
 func NewMainNodeService() (*MainNodeServiceImpl, error) {
-	return nil, nil
+	return &MainNodeServiceImpl{}, nil
 }
 
 // Register implements rpc.MetaDataServiceServer.
