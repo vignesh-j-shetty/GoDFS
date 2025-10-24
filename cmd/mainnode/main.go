@@ -1,34 +1,18 @@
 package main
 
 import (
-	"fmt"
-	"log"
-	"net"
+	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	"github.com/vignesh-j-shetty/GoDFS/internal/mainnode"
-	pb "github.com/vignesh-j-shetty/GoDFS/pkg/api"
-	"google.golang.org/grpc"
+	"github.com/vignesh-j-shetty/GoDFS/internal/mainnode/handler"
 )
 
 func main() {
 	_ = godotenv.Load()
-	lis, err := net.Listen("tcp", ":8080")
+	r := gin.Default()
 
-	if err != nil {
-		fmt.Printf("%s", err.Error());
-	}
+	
+	folderOps := handler.NewFolderOpsHandler()
+	folderOps.InitRoutes(r)
 
-	s := grpc.NewServer()
-	mainNodeService, err := mainnode.NewMainNodeService()
-
-	if err != nil {
-		fmt.Printf("Error while starting MainNode Service %s", err.Error())
-	}
-
-	pb.RegisterMainNodeServiceServer(s, mainNodeService)
-	fmt.Printf("Starting to listen at 8080")
-
-	if err := s.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
-	}
+	r.Run(":8080")
 }

@@ -31,7 +31,7 @@ func NewFileMetaDataFromSnapshot(reader io.Reader) *MetaDataHandler {
 }
 
 func (fileMetaDataHandler *MetaDataHandler) GetINodeFromPath(path string) (*INode, error) {
-	if path == "/" {
+	if path == "/" || path == "" {
 		return fileMetaDataHandler.root, nil
 	}
 
@@ -70,6 +70,24 @@ func (fileMetaDataHandler *MetaDataHandler) CreateFolder(path string, folderName
 	return parentINode.CreateFolder(folderName)
 }
 
-func (fileMetaDataHandler *MetaDataHandler) Sync(writer io.Writer) {
+func (fileMetaDataHandler *MetaDataHandler) Delete(path string) error {
+	lastIndex := strings.LastIndex(path, "/")
+
+	if lastIndex == -1 {
+		return ErrInvalidPath
+	}
+
+	parentPath := path[:lastIndex]
+	nameToDelete := path[lastIndex + 1:]
+	parentINode, err := fileMetaDataHandler.GetINodeFromPath(parentPath)
+
+	if err != nil {
+		return err
+	}
+
+	return parentINode.DeleteChild(nameToDelete)
+}
+
+func (fileMetaDataHandler *MetaDataHandler) saveSnapshot(writer io.Writer) {
 	fileMetaDataHandler.serilizer.Encode(fileMetaDataHandler.root, writer)
 }
