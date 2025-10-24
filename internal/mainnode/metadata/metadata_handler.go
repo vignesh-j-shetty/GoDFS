@@ -88,6 +88,22 @@ func (fileMetaDataHandler *MetaDataHandler) Delete(path string) error {
 	return parentINode.DeleteChild(nameToDelete)
 }
 
+func (fileMetaDataHandler *MetaDataHandler) GetFolderContents(path string) ([]string, error) {
+	children, err := fileMetaDataHandler.GetINodeFromPath(path)
+
+	if err != nil {
+		return nil, err
+	}
+
+	size := len(children.Children)
+	content := make([]string, size)
+	for i, child := range children.Children {
+		content[i] = child.Name
+	}
+	return content, nil
+}
+
+
 func (fileMetaDataHandler *MetaDataHandler) saveSnapshot(writer io.Writer) {
 	fileMetaDataHandler.serilizer.Encode(fileMetaDataHandler.root, writer)
 }

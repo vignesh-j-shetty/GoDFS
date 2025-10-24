@@ -30,3 +30,7 @@ func (mds *MetaDataService) Delete(path string) error {
 
 	return nil
 }
+
+func (mds MetaDataService) GetFolderContents(path string) ([]string, error) {
+	return mds.handler.GetFolderContents(path)
+}
