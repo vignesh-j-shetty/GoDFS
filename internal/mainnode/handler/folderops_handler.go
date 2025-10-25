@@ -20,9 +20,9 @@ func NewFolderOpsHandler() FolderOpsHandler {
 }
 
 func (f *FolderOpsHandler) InitRoutes(r *gin.Engine) {
-	r.POST("/v1/createFolder", f.createFolder)
-	r.DELETE("/v1/delete/*path", f.deleteFolder)
-	r.GET("/v1/getFolderContent/*path", f.getFolderContent)
+	r.POST("/v1/folder/create", f.createFolder)
+	r.DELETE("/v1/folder/delete/*path", f.deleteFolder)
+	r.GET("/v1/folder/content/*path", f.getFolderContent)
 }
 
 func (f *FolderOpsHandler) createFolder(ctx *gin.Context) {
