@@ -13,11 +13,12 @@ import (
 
 type HeartbeatClientService struct {
 	done chan struct{}
+	DataNodeConfig config.Config
 }
 
-func (service *HeartbeatClientService) StartHeartbeatService(config config.Config, ctx context.Context) error {
+func (service *HeartbeatClientService) StartHeartbeatService(ctx context.Context) error {
 	service.done = make(chan struct{})
-	conn, err := grpc.NewClient(config.MainNodeRCPUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient(service.DataNodeConfig.MainNodeRCPUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return err
 	}
@@ -53,6 +54,7 @@ func (service *HeartbeatClientService) Wait() {
 func (service *HeartbeatClientService) sendHeartbeat(client pb.HeartBeatServiceClient) {
 	req := &pb.HeartbeatRequest{
 		ChunkIDs: []string{"chunk1", "chunk2", "chunk-xyz"},
+		Url: service.DataNodeConfig.SelfUrl,
 	}
 	ctx, _ := context.WithTimeout(context.Background(), 3*time.Second)
 	resp, _ := client.Heartbeat(ctx, req)

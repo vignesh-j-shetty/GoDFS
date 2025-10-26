@@ -2,7 +2,8 @@ syntax = "proto3";
 option go_package = "github.com/vignesh-j-shetty/GoDFS/pkg/rpc";
 
 message HeartbeatRequest {
-    repeated string chunkIDs = 1;
+    string url = 1;
+    repeated string chunkIDs = 2;
 }
 
 message HeartbeatResponse {

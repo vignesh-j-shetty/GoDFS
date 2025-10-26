@@ -23,7 +23,8 @@ const (
 
 type HeartbeatRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ChunkIDs      []string               `protobuf:"bytes,1,rep,name=chunkIDs,proto3" json:"chunkIDs,omitempty"`
+	Url           string                 `protobuf:"bytes,1,opt,name=url,proto3" json:"url,omitempty"`
+	ChunkIDs      []string               `protobuf:"bytes,2,rep,name=chunkIDs,proto3" json:"chunkIDs,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -56,6 +57,13 @@ func (x *HeartbeatRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use HeartbeatRequest.ProtoReflect.Descriptor instead.
 func (*HeartbeatRequest) Descriptor() ([]byte, []int) {
 	return file_heart_beat_service_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *HeartbeatRequest) GetUrl() string {
+	if x != nil {
+		return x.Url
+	}
+	return ""
 }
 
 func (x *HeartbeatRequest) GetChunkIDs() []string {
@@ -113,9 +121,10 @@ var File_heart_beat_service_proto protoreflect.FileDescriptor
 
 const file_heart_beat_service_proto_rawDesc = "" +
 	"\n" +
-	"\x18heart_beat_service.proto\".\n" +
-	"\x10HeartbeatRequest\x12\x1a\n" +
-	"\bchunkIDs\x18\x01 \x03(\tR\bchunkIDs\"+\n" +
+	"\x18heart_beat_service.proto\"@\n" +
+	"\x10HeartbeatRequest\x12\x10\n" +
+	"\x03url\x18\x01 \x01(\tR\x03url\x12\x1a\n" +
+	"\bchunkIDs\x18\x02 \x03(\tR\bchunkIDs\"+\n" +
 	"\x11HeartbeatResponse\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\tR\x06status2F\n" +
 	"\x10HeartBeatService\x122\n" +

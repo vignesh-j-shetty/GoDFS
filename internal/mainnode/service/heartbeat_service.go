@@ -8,6 +8,7 @@ import (
 )
 
 type HeartBeatService struct {
+	
 	pb.UnimplementedHeartBeatServiceServer
 }
 
