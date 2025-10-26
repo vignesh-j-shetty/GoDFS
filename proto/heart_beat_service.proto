@@ -1,0 +1,14 @@
+syntax = "proto3";
+option go_package = "github.com/vignesh-j-shetty/GoDFS/pkg/rpc";
+
+message HeartbeatRequest {
+    repeated string chunkIDs = 1;
+}
+
+message HeartbeatResponse {
+    string status = 1;
+}
+
+service HeartBeatService {
+    rpc Heartbeat(HeartbeatRequest) returns (HeartbeatResponse);
+}

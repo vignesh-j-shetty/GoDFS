@@ -4,8 +4,10 @@ package metadata
 type INode struct {
 	Name  string
 	IsDir bool
-	// Children len == 0 when IsDir is False
+	// len(Children) == 0 when IsDir is False
 	Children []INode
+	// len(FileMetaData) == 0 when IsDir is True
+	FileMetaData []FileMetaData
 }
 
 type FileMetaData struct {
@@ -27,6 +29,24 @@ func (inode *INode) CreateFolder(folderName string) error {
 	inode.Children = append(inode.Children, INode{
 		Name:     folderName,
 		IsDir:    true,
+		Children: nil,
+	})
+	return nil
+}
+
+func (inode *INode) CreateFile(fileName string) error {
+	if !inode.IsDir {
+		return ErrInvalidOperation
+	}
+
+	for _, child := range inode.Children {
+		if child.Name == fileName {
+			return ErrDuplicateName
+		}
+	}
+	inode.Children = append(inode.Children, INode{
+		Name:     fileName,
+		IsDir:    false,
 		Children: nil,
 	})
 	return nil

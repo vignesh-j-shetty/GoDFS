@@ -1,10 +1,15 @@
-package api
+package restapimodels
 
 type FolderRequest struct {
-	Path       string `json:"path"`
+	Path string `json:"path"`
 	FolderName string `json:"folderName"`
 }
 
 type FolderContentList struct {
 	FolderContentList []string `json:"folderContentList"`
+}
+
+type FileCreateRequest struct {
+	Path string `json:"path"`
+	FileName string `json:"fileName"`
 }

@@ -7,7 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/vignesh-j-shetty/GoDFS/internal/mainnode/service"
-	"github.com/vignesh-j-shetty/GoDFS/pkg/api"
+	restapimodels "github.com/vignesh-j-shetty/GoDFS/pkg/rest-api-models"
 )
 
 type FolderOpsHandler struct {
@@ -26,8 +26,8 @@ func (f *FolderOpsHandler) InitRoutes(r *gin.Engine) {
 }
 
 func (f *FolderOpsHandler) createFolder(ctx *gin.Context) {
-	var createfolder api.FolderRequest
-	if !f.bindOrAbort(ctx, &createfolder) {
+	var createfolder restapimodels.FolderRequest
+	if !bindOrAbort(ctx, &createfolder) {
 		return
 	}
 
@@ -76,17 +76,9 @@ func (f *FolderOpsHandler) getFolderContent(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, api.FolderContentList {
+	ctx.JSON(http.StatusOK, restapimodels.FolderContentList {
 		FolderContentList: content,
 	})
-}
-
-func (f *FolderOpsHandler) bindOrAbort(ctx *gin.Context, obj interface{}) bool {
-	if err := ctx.ShouldBindBodyWithJSON(obj); err != nil {
-		ctx.JSON(http.StatusOK, gin.H{"status": "Bad request"})
-		return false
-	}
-	return true
 }
 
 func (f *FolderOpsHandler) isValidPath(s string) bool {
