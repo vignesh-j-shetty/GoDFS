@@ -5,9 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile
       target: mainnode-runtime
-    environment:
-      DATABASE_URL: ${DATABASE_URL}
-      DATANODE_COUNT: ${DATANODE_COUNT}
+
     ports:
       - "8080:8080"
   datanode:
@@ -16,8 +14,7 @@ services:
       context: .
       dockerfile: Dockerfile
       target: datanode-runtime
-    environment:
-      MAINNODE_URL: ${MAINNODE_URL}
+
   zoo1:
     image: zookeeper:3.9.1
     hostname: zoo1

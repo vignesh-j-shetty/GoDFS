@@ -3,11 +3,13 @@ package config
 import (
 	"os"
 	"strconv"
+	"strings"
 )
 
 type Config struct {
 	DatabaseURL string
 	DataNodeCount int
+	ZookeepersServers []string
 }
 
 func InitConfig() Config {
@@ -19,8 +21,10 @@ func InitConfig() Config {
 			dataNodeCount = _dataNodeCount
 		}
 	}
+
 	return Config {
 		DatabaseURL: os.Getenv("DATABASE_URL"),
 		DataNodeCount: dataNodeCount,
+		ZookeepersServers: strings.Split(os.Getenv("ZOOKEEPER_SERVERS"), ","),
 	}
 }
