@@ -18,7 +18,7 @@ func main() {
 	ZookeeperService, err := service.NewZookeeperService(config)
 
 	if err != nil {
-		log.Fatalf(err.Error())
+		log.Fatalf("%s", err.Error())
 	}
 
 	ZookeeperService.WatchLoop()
