@@ -1,14 +1,15 @@
 package service
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 
 	"github.com/go-zookeeper/zk"
 	"github.com/vignesh-j-shetty/GoDFS/internal/mainnode/config"
+	commonconstants "github.com/vignesh-j-shetty/GoDFS/pkg/common-constants"
+	"github.com/vignesh-j-shetty/GoDFS/pkg/zookeeper"
 )
-
-const zkPathPrefix = "/chunkservers"
 
 type ZookeeperService struct {
 	conn *zk.Conn
@@ -32,18 +33,34 @@ func NewZookeeperService(config config.Config) (*ZookeeperService, error) {
 
 func (service *ZookeeperService) WatchLoop() error {
 	// Ensure /chunkservers prefix path exits
-	err := service.ensurePath(zkPathPrefix)
+	err := service.ensurePath(commonconstants.ChunkServerPrefixPath)
 	if err != nil {
 		return err
 	}
 	for {
-		children, _, ch, err := service.conn.ChildrenW(zkPathPrefix)
+		children, _, ch, err := service.conn.ChildrenW(commonconstants.ChunkServerPrefixPath)
 		if err != nil {
 			return err
 		}
+		var chunkServers []zookeeper.ChunkServerInfo
+		for _, child := range children {
+			fullPath := commonconstants.ChunkServerPrefixPath + "/" + child
+			// Ignore stat
+			data, _, err := service.conn.Get(fullPath)
 
-		fmt.Println("Children ", children)
+			if err != nil {
+				fmt.Printf("error while reading chunkserver details %s", err.Error())
+				continue
+			}
 
+			var chunkServerInfo zookeeper.ChunkServerInfo
+			json.Unmarshal(data, &chunkServerInfo)
+			chunkServers = append(chunkServers, chunkServerInfo)
+		}
+		fmt.Printf("Size %d \n", len(chunkServers))
+		for _, chunchunkServersInfo := range chunkServers {
+			fmt.Printf("Upload Urls %s\n", chunchunkServersInfo.UploadUrl)
+		}
 		ev := <-ch
 		fmt.Println(ev.State.String())
 	}
