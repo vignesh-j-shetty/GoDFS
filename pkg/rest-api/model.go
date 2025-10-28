@@ -1,4 +1,4 @@
-package restapimodels
+package restapi
 
 type FolderRequest struct {
 	Path string `json:"path"`

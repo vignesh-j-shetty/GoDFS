@@ -7,7 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/vignesh-j-shetty/GoDFS/internal/mainnode/service"
-	restapimodels "github.com/vignesh-j-shetty/GoDFS/pkg/rest-api-models"
+	restapimodels "github.com/vignesh-j-shetty/GoDFS/pkg/rest-api"
 )
 
 type FolderOpsHandler struct {

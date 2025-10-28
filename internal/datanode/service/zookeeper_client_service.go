@@ -8,7 +8,7 @@ import (
 	"github.com/go-zookeeper/zk"
 	"github.com/vignesh-j-shetty/GoDFS/internal/datanode/config"
 	commonconstants "github.com/vignesh-j-shetty/GoDFS/pkg/common-constants"
-	"github.com/vignesh-j-shetty/GoDFS/pkg/zookeeper"
+	"github.com/vignesh-j-shetty/GoDFS/pkg/datanode"
 )
 
 type ZookeeperClientService struct {
@@ -33,7 +33,7 @@ func NewZookeeperClientService(config config.Config) (*ZookeeperClientService, e
 }
 
 func (s *ZookeeperClientService) Register() error {
-	chunkInfo := zookeeper.ChunkServerInfo {
+	chunkInfo := datanode.ChunkServerInfo {
 		Id: s.config.Id,
 		UploadUrl: s.config.UploadUrl,
 	}

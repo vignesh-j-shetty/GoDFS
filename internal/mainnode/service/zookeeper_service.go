@@ -4,11 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
-
 	"github.com/go-zookeeper/zk"
 	"github.com/vignesh-j-shetty/GoDFS/internal/mainnode/config"
 	commonconstants "github.com/vignesh-j-shetty/GoDFS/pkg/common-constants"
-	"github.com/vignesh-j-shetty/GoDFS/pkg/zookeeper"
+	"github.com/vignesh-j-shetty/GoDFS/pkg/datanode"
 )
 
 type ZookeeperService struct {
@@ -42,7 +41,7 @@ func (service *ZookeeperService) WatchLoop() error {
 		if err != nil {
 			return err
 		}
-		var chunkServers []zookeeper.ChunkServerInfo
+		var chunkServers [] datanode.ChunkServerInfo
 		for _, child := range children {
 			fullPath := commonconstants.ChunkServerPrefixPath + "/" + child
 			// Ignore stat
@@ -53,7 +52,7 @@ func (service *ZookeeperService) WatchLoop() error {
 				continue
 			}
 
-			var chunkServerInfo zookeeper.ChunkServerInfo
+			var chunkServerInfo datanode.ChunkServerInfo
 			json.Unmarshal(data, &chunkServerInfo)
 			chunkServers = append(chunkServers, chunkServerInfo)
 		}
