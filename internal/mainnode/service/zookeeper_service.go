@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
+
 	"github.com/go-zookeeper/zk"
 	"github.com/vignesh-j-shetty/GoDFS/internal/mainnode/config"
 	commonconstants "github.com/vignesh-j-shetty/GoDFS/pkg/common-constants"
@@ -58,7 +59,7 @@ func (service *ZookeeperService) WatchLoop() error {
 		}
 		fmt.Printf("Size %d \n", len(chunkServers))
 		for _, chunchunkServersInfo := range chunkServers {
-			fmt.Printf("Upload Urls %s\n", chunchunkServersInfo.UploadUrl)
+			fmt.Printf("Free Space %d\n", chunchunkServersInfo.FreeSpace)
 		}
 		ev := <-ch
 		fmt.Println(ev.State.String())

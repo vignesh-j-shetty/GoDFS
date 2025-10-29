@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
-
 	"github.com/go-zookeeper/zk"
 	"github.com/vignesh-j-shetty/GoDFS/internal/datanode/config"
 	commonconstants "github.com/vignesh-j-shetty/GoDFS/pkg/common-constants"
 	"github.com/vignesh-j-shetty/GoDFS/pkg/datanode"
+	"github.com/vignesh-j-shetty/GoDFS/pkg/platform"
 )
 
 type ZookeeperClientService struct {
@@ -33,9 +33,16 @@ func NewZookeeperClientService(config config.Config) (*ZookeeperClientService, e
 }
 
 func (s *ZookeeperClientService) Register() error {
+	freeSpace, err := platform.GetFreeSpace(s.config.ChunkFilePath)
+
+	if err != nil {
+		return err
+	}
+
 	chunkInfo := datanode.ChunkServerInfo {
 		Id: s.config.Id,
 		UploadUrl: s.config.UploadUrl,
+		FreeSpace: freeSpace,
 	}
 	jsonData, err := json.Marshal(chunkInfo)
 
