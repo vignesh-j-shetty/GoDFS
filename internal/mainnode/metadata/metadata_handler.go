@@ -70,6 +70,16 @@ func (fileMetaDataHandler *MetaDataHandler) CreateFolder(path string, folderName
 	return parentINode.CreateFolder(folderName)
 }
 
+func (fileMetaDataHandler *MetaDataHandler) CreateFile(path string, fileName string, fileSize uint64) error {
+	parentINode, err := fileMetaDataHandler.GetINodeFromPath(path)
+
+	if err != nil {
+		return err
+	}
+
+	return parentINode.CreateFile(fileName, fileSize)
+}
+
 func (fileMetaDataHandler *MetaDataHandler) Delete(path string) error {
 	lastIndex := strings.LastIndex(path, "/")
 

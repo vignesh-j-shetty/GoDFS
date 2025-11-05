@@ -4,19 +4,20 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
+
 	"github.com/go-zookeeper/zk"
 	"github.com/vignesh-j-shetty/GoDFS/internal/datanode/config"
+	"github.com/vignesh-j-shetty/GoDFS/internal/datanode/storage"
 	commonconstants "github.com/vignesh-j-shetty/GoDFS/pkg/common-constants"
 	"github.com/vignesh-j-shetty/GoDFS/pkg/datanode"
-	"github.com/vignesh-j-shetty/GoDFS/pkg/platform"
 )
 
 type ZookeeperClientService struct {
-	conn *zk.Conn
-	evCh <-chan zk.Event
-	config config.Config
+	conn           *zk.Conn
+	evCh           <-chan zk.Event
+	config         config.Config
+	storageHandler storage.StorageHandler
 }
-
 
 func NewZookeeperClientService(config config.Config) (*ZookeeperClientService, error) {
 	conn, evCh, err := zk.Connect(config.ZookeepersServers, time.Second)
@@ -26,21 +27,25 @@ func NewZookeeperClientService(config config.Config) (*ZookeeperClientService, e
 	}
 
 	return &ZookeeperClientService{
-		conn: conn,
-		evCh: evCh,
-		config: config,
+		conn:           conn,
+		evCh:           evCh,
+		config:         config,
+		storageHandler: storage.NewStorageHandler(config),
 	}, nil
 }
 
 func (s *ZookeeperClientService) Register() error {
-	freeSpace, err := platform.GetFreeSpace(s.config.ChunkFilePath)
+	freeSpace, err := s.storageHandler.GetFreeSpace()
 
 	if err != nil {
+		fmt.Println("Failed to get disk info ", err.Error(), " for path ", s.config.ChunkFilePath)
 		return err
 	}
 
-	chunkInfo := datanode.ChunkServerInfo {
-		Id: s.config.Id,
+	fmt.Println("Disk size :", freeSpace)
+
+	chunkInfo := datanode.DataNodeInfo{
+		Id:        s.config.Id,
 		UploadUrl: s.config.UploadUrl,
 		FreeSpace: freeSpace,
 	}
@@ -50,7 +55,7 @@ func (s *ZookeeperClientService) Register() error {
 		return err
 	}
 
-	created, err := s.conn.Create(commonconstants.ChunkServerPrefixPath + "/" + chunkInfo.Id, jsonData, zk.FlagEphemeral, zk.WorldACL(zk.PermAll))
+	created, err := s.conn.Create(commonconstants.ChunkServerPrefixPath+"/"+chunkInfo.Id, jsonData, zk.FlagEphemeral, zk.WorldACL(zk.PermAll))
 	if err != nil {
 		return err
 	}

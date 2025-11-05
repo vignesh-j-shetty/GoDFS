@@ -12,4 +12,11 @@ type FolderContentList struct {
 type FileCreateRequest struct {
 	Path string `json:"path"`
 	FileName string `json:"fileName"`
+	Size uint64 `json:"fileSize"`
+}
+
+type Response struct {
+	Status string `json:"status"`
+	Error string `json:"error"`
+	Data any `json:"data"`
 }

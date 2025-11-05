@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -23,8 +24,9 @@ func main() {
 	zookeeperService, err := service.NewZookeeperClientService(config)
 
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatalln("Error ", err.Error())
 	}
+	fmt.Println("Zoo keeper register calling")
 	zookeeperService.Register()
 	
 	handler.InitRoutes(r)

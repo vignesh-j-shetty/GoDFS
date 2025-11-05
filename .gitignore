@@ -32,3 +32,6 @@ go.work.sum
 # .vscode/
 
 /data
+
+.dockerignore
+docker-compose-local-test.yml

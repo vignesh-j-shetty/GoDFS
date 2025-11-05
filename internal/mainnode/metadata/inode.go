@@ -1,5 +1,9 @@
 package metadata
 
+// import (
+// 	"github.com/google/uuid"
+// )
+
 // This represents single File or Directory
 type INode struct {
 	Name  string
@@ -34,7 +38,7 @@ func (inode *INode) CreateFolder(folderName string) error {
 	return nil
 }
 
-func (inode *INode) CreateFile(fileName string) error {
+func (inode *INode) CreateFile(fileName string, fileSize uint64) error {
 	if !inode.IsDir {
 		return ErrInvalidOperation
 	}
@@ -44,11 +48,15 @@ func (inode *INode) CreateFile(fileName string) error {
 			return ErrDuplicateName
 		}
 	}
-	inode.Children = append(inode.Children, INode{
+	newChild := INode{
 		Name:     fileName,
 		IsDir:    false,
 		Children: nil,
-	})
+	}
+
+	//id := uuid.New()
+
+	inode.Children = append(inode.Children, newChild)
 	return nil
 }
 

@@ -1,18 +1,20 @@
 package handler
 
 import (
+	"net/http"
 	"github.com/gin-gonic/gin"
 	"github.com/vignesh-j-shetty/GoDFS/internal/mainnode/service"
-	restapimodels "github.com/vignesh-j-shetty/GoDFS/pkg/rest-api"
+	commonconstants "github.com/vignesh-j-shetty/GoDFS/pkg/common-constants"
+	restapi "github.com/vignesh-j-shetty/GoDFS/pkg/rest-api"
 )
 
 type FileOpsHandler struct {
-	MetaDataHandler service.MetaDataService
+	MetaDataHandler* service.MetaDataService
 }
 
-func NewFileOpsHandler() FileOpsHandler {
+func NewFileOpsHandler(metaDataService* service.MetaDataService) FileOpsHandler {
 	return FileOpsHandler{
-		MetaDataHandler: service.NewMetaDataService(),
+		MetaDataHandler: metaDataService,
 	}
 }
 
@@ -21,10 +23,25 @@ func (f *FileOpsHandler) InitRoutes(r *gin.Engine) {
 }
 
 func (f *FileOpsHandler) createNewFile(ctx *gin.Context) {
-	var createNewFile restapimodels.FileCreateRequest
+	var createNewFile restapi.FileCreateRequest
 
 	if !bindOrAbort(ctx, &createNewFile) {
 		return
 	}
-	
+
+	err := f.MetaDataHandler.CreateFiles(createNewFile.Path, createNewFile.FileName, createNewFile.Size)
+
+	if err != nil {
+		resp := restapi.Response {
+			Status: commonconstants.FAILURE_STATUS,
+			Error: err.Error(),
+			Data: nil,
+		}
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+	resp := restapi.Response {
+			Status: commonconstants.SUCCESS_STATUS,
+		}
+	ctx.JSON(http.StatusAccepted, resp)
 }

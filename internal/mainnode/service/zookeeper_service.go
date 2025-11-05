@@ -3,6 +3,7 @@ package service
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 	"time"
 
 	"github.com/go-zookeeper/zk"
@@ -12,21 +13,23 @@ import (
 )
 
 type ZookeeperService struct {
-	conn *zk.Conn
-	evCh <-chan zk.Event
+	conn   *zk.Conn
+	evCh   <-chan zk.Event
 	config config.Config
+	DataNode[] datanode.DataNodeInfo
 }
 
 func NewZookeeperService(config config.Config) (*ZookeeperService, error) {
-	conn, evCh, err := zk.Connect(config.ZookeepersServers, 10 * time.Second)
+	conn, evCh, err := zk.Connect(config.ZookeepersServers, 10*time.Second)
 
 	if err != nil {
 		return nil, err
 	}
 
+	fmt.Println("Connect with zookeeper successfully")
 	return &ZookeeperService{
-		conn: conn,
-		evCh: evCh,
+		conn:   conn,
+		evCh:   evCh,
 		config: config,
 	}, nil
 }
@@ -42,7 +45,7 @@ func (service *ZookeeperService) WatchLoop() error {
 		if err != nil {
 			return err
 		}
-		var chunkServers [] datanode.ChunkServerInfo
+		var dataNodeServers []datanode.DataNodeInfo
 		for _, child := range children {
 			fullPath := commonconstants.ChunkServerPrefixPath + "/" + child
 			// Ignore stat
@@ -53,16 +56,17 @@ func (service *ZookeeperService) WatchLoop() error {
 				continue
 			}
 
-			var chunkServerInfo datanode.ChunkServerInfo
+			var chunkServerInfo datanode.DataNodeInfo
 			json.Unmarshal(data, &chunkServerInfo)
-			chunkServers = append(chunkServers, chunkServerInfo)
+			dataNodeServers = append(dataNodeServers, chunkServerInfo)
 		}
-		fmt.Printf("Size %d \n", len(chunkServers))
-		for _, chunchunkServersInfo := range chunkServers {
-			fmt.Printf("Free Space %d\n", chunchunkServersInfo.FreeSpace)
-		}
-		ev := <-ch
-		fmt.Println(ev.State.String())
+
+		sort.Slice(dataNodeServers, func(i, j int) bool {
+			return dataNodeServers[i].FreeSpace > dataNodeServers[j].FreeSpace
+		})
+		service.DataNode = dataNodeServers
+		<-ch
+		fmt.Println("Datanode info updated")
 	}
 }
 
