@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/vignesh-j-shetty/GoDFS/internal/mainnode/service"
 	commonconstants "github.com/vignesh-j-shetty/GoDFS/pkg/common-constants"
@@ -9,10 +10,10 @@ import (
 )
 
 type FileOpsHandler struct {
-	MetaDataHandler* service.MetaDataService
+	MetaDataHandler *service.MetaDataService
 }
 
-func NewFileOpsHandler(metaDataService* service.MetaDataService) FileOpsHandler {
+func NewFileOpsHandler(metaDataService *service.MetaDataService) FileOpsHandler {
 	return FileOpsHandler{
 		MetaDataHandler: metaDataService,
 	}
@@ -29,19 +30,21 @@ func (f *FileOpsHandler) createNewFile(ctx *gin.Context) {
 		return
 	}
 
-	err := f.MetaDataHandler.CreateFiles(createNewFile.Path, createNewFile.FileName, createNewFile.Size)
+	chunkLocations, err := f.MetaDataHandler.CreateFiles(createNewFile.Path, createNewFile.FileName, createNewFile.Size)
 
 	if err != nil {
-		resp := restapi.Response {
+		resp := restapi.Response{
 			Status: commonconstants.FAILURE_STATUS,
-			Error: err.Error(),
-			Data: nil,
+			Error:  err.Error(),
+			Data:   nil,
 		}
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
-	resp := restapi.Response {
-			Status: commonconstants.SUCCESS_STATUS,
-		}
+
+	resp := restapi.Response{
+		Status: commonconstants.SUCCESS_STATUS,
+		Data:   chunkLocations,
+	}
 	ctx.JSON(http.StatusAccepted, resp)
 }

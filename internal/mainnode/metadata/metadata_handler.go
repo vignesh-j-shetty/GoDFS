@@ -3,20 +3,23 @@ package metadata
 import (
 	"io"
 	"strings"
+	"github.com/vignesh-j-shetty/GoDFS/internal/mainnode/config"
 )
 
 type MetaDataHandler struct {
 	root      *INode
 	serilizer INodeTreeSerializer
+	config	config.Config
 }
 
-func NewFileMetaDataHandler() *MetaDataHandler {
+func NewFileMetaDataHandler(config config.Config) *MetaDataHandler {
 	return &MetaDataHandler{
 		root: &INode{
 			Name:  "",
 			IsDir: true,
 		},
 		serilizer: NewGobSerializer(),
+		config:    config,
 	}
 }
 
@@ -70,14 +73,20 @@ func (fileMetaDataHandler *MetaDataHandler) CreateFolder(path string, folderName
 	return parentINode.CreateFolder(folderName)
 }
 
-func (fileMetaDataHandler *MetaDataHandler) CreateFile(path string, fileName string, fileSize uint64) error {
+func (fileMetaDataHandler *MetaDataHandler) CreateFile(path string, fileName string, fileSize uint64) ([]FileMetaData, error) {
 	parentINode, err := fileMetaDataHandler.GetINodeFromPath(path)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return parentINode.CreateFile(fileName, fileSize)
+	fileNode, err := parentINode.CreateFile(fileName, fileSize, fileMetaDataHandler.config.ChunkSize)
+
+	if err != nil {
+		return nil, err
+	}
+	
+	return fileNode.FileMetaData, nil
 }
 
 func (fileMetaDataHandler *MetaDataHandler) Delete(path string) error {

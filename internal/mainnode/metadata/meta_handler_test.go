@@ -2,10 +2,13 @@ package metadata
 
 import (
 	"testing"
+
+	"github.com/vignesh-j-shetty/GoDFS/internal/mainnode/config"
 )
 
 func TestMetatHandlerGetINodeFromPath1(t *testing.T) {
-	handler := NewFileMetaDataHandler()
+	cnf := config.Config{}
+	handler := NewFileMetaDataHandler(cnf)
 
 	handler.CreateFolder("/", "testfolder")
 
@@ -24,7 +27,8 @@ func TestMetatHandlerGetINodeFromPath1(t *testing.T) {
 }
 
 func TestMetatHandlerGetINodeFromPath2(t *testing.T) {
-	handler := NewFileMetaDataHandler()
+	cnf := config.Config{}
+	handler := NewFileMetaDataHandler(cnf)
 
 	handler.CreateFolder("/", "testfolder")
 

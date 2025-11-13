@@ -85,3 +85,7 @@ func (s *ZookeeperService) ensurePath(path string) error {
 	}
 	return err
 }
+
+func (s *ZookeeperService) GetActiveDatanodes() []datanode.DataNodeInfo {
+	return s.DataNode
+}

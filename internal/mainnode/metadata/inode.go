@@ -1,5 +1,7 @@
 package metadata
 
+import "github.com/google/uuid"
+
 // import (
 // 	"github.com/google/uuid"
 // )
@@ -15,7 +17,7 @@ type INode struct {
 }
 
 type FileMetaData struct {
-	ChunkID uint64
+	ChunkID string
 	Size    uint32
 }
 
@@ -38,14 +40,14 @@ func (inode *INode) CreateFolder(folderName string) error {
 	return nil
 }
 
-func (inode *INode) CreateFile(fileName string, fileSize uint64) error {
+func (inode *INode) CreateFile(fileName string, fileSize uint64, MaxChunkSize uint64) (INode, error) {
 	if !inode.IsDir {
-		return ErrInvalidOperation
+		return INode{}, ErrInvalidOperation
 	}
 
 	for _, child := range inode.Children {
 		if child.Name == fileName {
-			return ErrDuplicateName
+			return INode{}, ErrDuplicateName
 		}
 	}
 	newChild := INode{
@@ -54,10 +56,27 @@ func (inode *INode) CreateFile(fileName string, fileSize uint64) error {
 		Children: nil,
 	}
 
-	//id := uuid.New()
+	chunkCount := fileSize / MaxChunkSize
 
+	for range chunkCount {
+		id := uuid.New().String()
+		newChild.FileMetaData = append(newChild.FileMetaData, FileMetaData{
+			ChunkID: id,
+			Size:    uint32(MaxChunkSize),
+		})
+	}
+
+	remainingSize := fileSize % MaxChunkSize
+	if remainingSize > 0 {
+		id := uuid.New().String()
+		newChild.FileMetaData = append(newChild.FileMetaData, FileMetaData{
+			ChunkID: id,
+			Size:    uint32(remainingSize),
+		})
+	}
+	
 	inode.Children = append(inode.Children, newChild)
-	return nil
+	return newChild, nil
 }
 
 func (inode *INode) DeleteChild(fileName string) error {

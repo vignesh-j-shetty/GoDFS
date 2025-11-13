@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"sync"
-
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/vignesh-j-shetty/GoDFS/internal/mainnode/config"
@@ -23,7 +22,7 @@ func main() {
 
 	// Gin setup
 	r := gin.Default()
-	metadataService := service.NewMetaDataService(config)
+	metadataService := service.NewMetaDataService(config, ZookeeperService)
 	folderOps := handler.NewFolderOpsHandler(&metadataService)
 	folderOps.InitRoutes(r)
 
