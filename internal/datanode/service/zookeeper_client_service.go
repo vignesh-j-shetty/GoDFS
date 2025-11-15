@@ -8,8 +8,8 @@ import (
 	"github.com/go-zookeeper/zk"
 	"github.com/vignesh-j-shetty/GoDFS/internal/datanode/config"
 	"github.com/vignesh-j-shetty/GoDFS/internal/datanode/storage"
+	"github.com/vignesh-j-shetty/GoDFS/internal/mainnode/model"
 	commonconstants "github.com/vignesh-j-shetty/GoDFS/pkg/common-constants"
-	"github.com/vignesh-j-shetty/GoDFS/pkg/datanode"
 )
 
 type ZookeeperClientService struct {
@@ -44,7 +44,7 @@ func (s *ZookeeperClientService) Register() error {
 
 	fmt.Println("Disk size :", freeSpace)
 
-	chunkInfo := datanode.DataNodeInfo{
+	chunkInfo := model.DataNodeInfo{
 		Id:        s.config.Id,
 		UploadUrl: s.config.UploadUrl,
 		FreeSpace: freeSpace,

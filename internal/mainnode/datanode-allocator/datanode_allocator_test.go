@@ -5,11 +5,10 @@ import (
 	"testing"
 
 	"github.com/vignesh-j-shetty/GoDFS/internal/mainnode/model"
-	"github.com/vignesh-j-shetty/GoDFS/pkg/datanode"
 )
 
 func TestAllocateDataNode_Success(t *testing.T) {
-	datanodes := []datanode.DataNodeInfo{
+	datanodes := []model.DataNodeInfo{
 		{Id: "dn1", FreeSpace: 100},
 		{Id: "dn2", FreeSpace: 200},
 		{Id: "dn3", FreeSpace: 300},
@@ -39,7 +38,7 @@ func TestAllocateDataNode_Success(t *testing.T) {
 }
 
 func TestAllocateDataNode_NotEnoughSpace(t *testing.T) {
-	datanodes := []datanode.DataNodeInfo{
+	datanodes := []model.DataNodeInfo{
 		{Id: "dn1", FreeSpace: 10},
 		{Id: "dn2", FreeSpace: 10},
 	}

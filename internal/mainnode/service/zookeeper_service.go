@@ -8,15 +8,15 @@ import (
 
 	"github.com/go-zookeeper/zk"
 	"github.com/vignesh-j-shetty/GoDFS/internal/mainnode/config"
+	"github.com/vignesh-j-shetty/GoDFS/internal/mainnode/model"
 	commonconstants "github.com/vignesh-j-shetty/GoDFS/pkg/common-constants"
-	"github.com/vignesh-j-shetty/GoDFS/pkg/datanode"
 )
 
 type ZookeeperService struct {
 	conn   *zk.Conn
 	evCh   <-chan zk.Event
 	config config.Config
-	DataNode[] datanode.DataNodeInfo
+	DataNode[] model.DataNodeInfo
 }
 
 func NewZookeeperService(config config.Config) (*ZookeeperService, error) {
@@ -45,7 +45,7 @@ func (service *ZookeeperService) WatchLoop() error {
 		if err != nil {
 			return err
 		}
-		var dataNodeServers []datanode.DataNodeInfo
+		var dataNodeServers []model.DataNodeInfo
 		for _, child := range children {
 			fullPath := commonconstants.ChunkServerPrefixPath + "/" + child
 			// Ignore stat
@@ -56,7 +56,7 @@ func (service *ZookeeperService) WatchLoop() error {
 				continue
 			}
 
-			var chunkServerInfo datanode.DataNodeInfo
+			var chunkServerInfo model.DataNodeInfo
 			json.Unmarshal(data, &chunkServerInfo)
 			dataNodeServers = append(dataNodeServers, chunkServerInfo)
 		}
@@ -86,6 +86,6 @@ func (s *ZookeeperService) ensurePath(path string) error {
 	return err
 }
 
-func (s *ZookeeperService) GetActiveDatanodes() []datanode.DataNodeInfo {
+func (s *ZookeeperService) GetActiveDatanodes() []model.DataNodeInfo {
 	return s.DataNode
 }

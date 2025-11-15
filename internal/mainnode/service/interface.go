@@ -1,8 +1,8 @@
 package service
 
-import "github.com/vignesh-j-shetty/GoDFS/pkg/datanode"
+import "github.com/vignesh-j-shetty/GoDFS/internal/mainnode/model"
 
 type ActiveDatanodeProvider interface {
 	// GetActiveDatanodes returns a slice of active DataNodeInfo
-	GetActiveDatanodes() []datanode.DataNodeInfo
+	GetActiveDatanodes() []model.DataNodeInfo
 }
