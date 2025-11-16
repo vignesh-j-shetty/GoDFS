@@ -6,6 +6,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/vignesh-j-shetty/GoDFS/internal/datanode/config"
+	commonconstants "github.com/vignesh-j-shetty/GoDFS/pkg/common-constants"
+	restapi "github.com/vignesh-j-shetty/GoDFS/pkg/rest-api"
 )
 
 type FileUploadHandler struct {
@@ -13,25 +15,33 @@ type FileUploadHandler struct {
 }
 
 func (f *FileUploadHandler) InitRoutes(r *gin.Engine) {
-	r.POST("/v1/file/upload", f.upload)
+	r.POST(commonconstants.UPLOAD_FILE_ENDPOINT, f.upload)
 }
 
 func (f *FileUploadHandler) upload(c *gin.Context) {
-	
 	chunkFile, err := c.FormFile("chunk_file")
 	if err != nil {
-        c.String(http.StatusBadRequest, "File missing: %v", err)
+		errorResp := restapi.Response {
+			Status: commonconstants.FAILURE_STATUS,
+			Error:  "Invalid chunk file",
+		}
+		c.JSON(http.StatusBadRequest, errorResp)
         return
     }
 	savePath := filepath.Join(f.Config.ChunkFilePath, chunkFile.Filename)
 	err = c.SaveUploadedFile(chunkFile, savePath)
 
 	if err != nil {
-		c.String(http.StatusInternalServerError, "Unexpected error")
+		errorResp := restapi.Response {
+			Status: commonconstants.FAILURE_STATUS,
+			Error:  "Failed to save chunk file",
+		}
+		c.JSON(http.StatusInternalServerError, errorResp)
 		return
 	}
 
-	chunkID := c.PostForm("chunk_id")
-	c.String(http.StatusOK, "File ID :%s File size :%d", chunkID, chunkFile.Size)
-	c.String(http.StatusOK, " File name :%s", chunkFile.Filename)
+	resp := restapi.Response {
+		Status: commonconstants.SUCCESS_STATUS,
+	}
+	c.JSON(http.StatusOK, resp)
 }

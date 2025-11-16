@@ -42,9 +42,22 @@ func (f *FileOpsHandler) createNewFile(ctx *gin.Context) {
 		return
 	}
 
+	var chunkUploadInfoList []restapi.ChunkInfo
+
+	for _, chunkLocation := range chunkLocations {
+		var uploadUrls []string
+		for _, DataNodeID := range chunkLocation.DataNodeIDs {
+			uploadUrls = append(uploadUrls, DataNodeID.UploadUrl)
+		}
+		chunkUploadInfoList = append(chunkUploadInfoList, restapi.ChunkInfo{
+			ChunkId:   chunkLocation.ChunkID,
+			UploadUrl: uploadUrls,
+		})
+	}
+
 	resp := restapi.Response{
 		Status: commonconstants.SUCCESS_STATUS,
-		Data:   chunkLocations,
+		Data:   chunkUploadInfoList,
 	}
 	ctx.JSON(http.StatusAccepted, resp)
 }

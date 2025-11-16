@@ -20,3 +20,8 @@ type Response struct {
 	Error string `json:"error"`
 	Data any `json:"data"`
 }
+
+type ChunkInfo struct {
+	ChunkId string `json:"chunkId"`
+	UploadUrl []string `json:"uploadUrl"`
+}
