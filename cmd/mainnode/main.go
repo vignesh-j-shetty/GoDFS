@@ -34,7 +34,7 @@ func main() {
 
 	go func ()  {
 		defer wg.Done()
-		ZookeeperService.WatchLoop()
+		ZookeeperService.RunWatchLoop()
 	}()
 
 	go func() {

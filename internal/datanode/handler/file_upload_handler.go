@@ -6,12 +6,14 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/vignesh-j-shetty/GoDFS/internal/datanode/config"
+	"github.com/vignesh-j-shetty/GoDFS/internal/datanode/service"
 	commonconstants "github.com/vignesh-j-shetty/GoDFS/pkg/common-constants"
 	restapi "github.com/vignesh-j-shetty/GoDFS/pkg/rest-api"
 )
 
 type FileUploadHandler struct {
 	Config config.Config
+	ZookeeperClientService *service.ZookeeperClientService
 }
 
 func (f *FileUploadHandler) InitRoutes(r *gin.Engine) {
@@ -44,4 +46,5 @@ func (f *FileUploadHandler) upload(c *gin.Context) {
 		Status: commonconstants.SUCCESS_STATUS,
 	}
 	c.JSON(http.StatusOK, resp)
+	f.ZookeeperClientService.UpdateChunks()
 }

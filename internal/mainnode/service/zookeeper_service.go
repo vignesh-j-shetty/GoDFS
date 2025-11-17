@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"sort"
+	"sync"
 	"time"
-
 	"github.com/go-zookeeper/zk"
 	"github.com/vignesh-j-shetty/GoDFS/internal/mainnode/config"
 	"github.com/vignesh-j-shetty/GoDFS/internal/mainnode/model"
@@ -34,7 +34,22 @@ func NewZookeeperService(config config.Config) (*ZookeeperService, error) {
 	}, nil
 }
 
-func (service *ZookeeperService) WatchLoop() error {
+func (s *ZookeeperService) RunWatchLoop() {
+	var wg sync.WaitGroup
+	go func() {
+		wg.Add(1)
+		defer wg.Done()
+		s.nodeWatcherLoop()
+	}()
+
+	go func() {
+		wg.Add(1)
+		defer wg.Done()
+		s.chunkFileWatcherLoop()
+	}()
+}
+
+func (service *ZookeeperService) nodeWatcherLoop() error {
 	// Ensure /chunkservers prefix path exits
 	err := service.ensurePath(commonconstants.ChunkServerPrefixPath)
 	if err != nil {
@@ -67,6 +82,34 @@ func (service *ZookeeperService) WatchLoop() error {
 		service.DataNode = dataNodeServers
 		<-ch
 		fmt.Println("Datanode info updated")
+	}
+}
+
+func (service *ZookeeperService) chunkFileWatcherLoop() error {
+	err := service.ensurePath(commonconstants.ChunkFilePrefixPath)
+	if err != nil {
+		return err
+	}
+	for {
+		children, _, ch, err := service.conn.ChildrenW(commonconstants.ChunkFilePrefixPath)
+		if err != nil {
+			return err
+		}
+
+		for _, child := range children {
+			fullPath := commonconstants.ChunkFilePrefixPath + "/" + child
+			data, _, err := service.conn.Get(fullPath)
+
+			if err != nil {
+				fmt.Printf("error while reading chunk file details %s", err.Error())
+				continue
+			}
+
+			fmt.Printf("Chunk files for datanode %s : %s\n", child, string(data))
+		}
+
+		fmt.Printf("Current chunk files in the system: %v\n", children)
+		<-ch
 	}
 }
 

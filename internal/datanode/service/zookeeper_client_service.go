@@ -3,6 +3,8 @@ package service
 import (
 	"encoding/json"
 	"fmt"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/go-zookeeper/zk"
@@ -55,10 +57,47 @@ func (s *ZookeeperClientService) Register() error {
 		return err
 	}
 
-	created, err := s.conn.Create(commonconstants.ChunkServerPrefixPath+"/"+chunkInfo.Id, jsonData, zk.FlagEphemeral, zk.WorldACL(zk.PermAll))
+	_, err = s.conn.Create(commonconstants.ChunkServerPrefixPath+"/"+chunkInfo.Id, jsonData, zk.FlagEphemeral, zk.WorldACL(zk.PermAll))
 	if err != nil {
+		fmt.Println("Failed to register chunkserver with zookeeper ", err.Error())
 		return err
 	}
-	fmt.Printf("created %s", created)
+
+	_, err = s.conn.Create(commonconstants.ChunkFilePrefixPath + "/" + chunkInfo.Id, []byte{}, zk.FlagEphemeral, zk.WorldACL(zk.PermAll))
+	if err != nil {
+		fmt.Println("Failed to ensure chunk file path ", err.Error())
+		return err
+	}
+
+	fmt.Printf("client successfully registered with zookeeper with id %s\n", chunkInfo.Id)
+	return nil
+}
+
+func (s *ZookeeperClientService) UpdateChunks() error {
+	files, err := os.ReadDir(s.config.ChunkFilePath)
+
+	if err != nil {
+		fmt.Println("Failed to read directory:", err)
+		return err
+	}
+	var filesNames []string
+	for _, file := range files {
+		filesNames = append(filesNames, file.Name())
+	}
+	allFileNames := strings.Join(filesNames, ",")
+
+	path := commonconstants.ChunkFilePrefixPath + "/" + s.config.Id
+	_, stat, err := s.conn.Get(path)
+
+    if err != nil {
+        return fmt.Errorf("failed to get znode: %w", err)
+    }
+	_, err = s.conn.Set(path, []byte(allFileNames), stat.Version)
+
+    if err != nil {
+        return fmt.Errorf("failed to update znode: %w", err)
+    }
+
+	fmt.Println("Chunk files updated in zookeeper:", allFileNames)
 	return nil
 }

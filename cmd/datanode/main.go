@@ -17,11 +17,12 @@ func main() {
 
 	r := gin.Default()
 
+	zookeeperService, err := service.NewZookeeperClientService(config)
+
 	handler := handler.FileUploadHandler {
 		Config: config,
+		ZookeeperClientService: zookeeperService,
 	}
-
-	zookeeperService, err := service.NewZookeeperClientService(config)
 
 	if err != nil {
 		log.Fatalln("Error ", err.Error())
