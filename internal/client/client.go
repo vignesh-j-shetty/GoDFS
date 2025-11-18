@@ -12,22 +12,22 @@ import (
 	"strings"
 	"sync"
 	"time"
+
 	commonconstants "github.com/vignesh-j-shetty/GoDFS/pkg/common-constants"
 	restapi "github.com/vignesh-j-shetty/GoDFS/pkg/rest-api"
 )
 
-
 type GoDFSClient struct {
-	config *Config
+	config     *Config
 	httpClient *http.Client
 }
 
 func NewGoDFSClient(config *Config) *GoDFSClient {
 	return &GoDFSClient{
 		config: config,
-		httpClient: &http.Client{ 
-            Timeout: 30 * time.Second,
-        },
+		httpClient: &http.Client{
+			Timeout: 30 * time.Second,
+		},
 	}
 }
 
@@ -38,10 +38,10 @@ func (c *GoDFSClient) CreateFile(uploadPath string, filePath string) error {
 		fmt.Println("Error:", err)
 		return err
 	}
-	fileRequest := restapi.FileCreateRequest {
-		Path: uploadPath,
+	fileRequest := restapi.FileCreateRequest{
+		Path:     uploadPath,
 		FileName: filename,
-		Size: uint64(info.Size()),
+		Size:     uint64(info.Size()),
 	}
 	// Gets chunk info from metadata server
 	chunkInfoList, err := c.createFileInMetaDataServer(fileRequest)
@@ -88,7 +88,7 @@ func (c *GoDFSClient) createFileInMetaDataServer(fileRequest restapi.FileCreateR
 		return nil, err
 	}
 
-	resp, err := http.Post(c.config.MetadataServer + "/v1/file/create", "application/json", bytes.NewBuffer(jsonData))
+	resp, err := http.Post(c.config.MetadataServer+"/v1/file/create", "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		fmt.Println("Error making POST request:", err)
 		return nil, err
@@ -119,9 +119,9 @@ func (c *GoDFSClient) createFileInMetaDataServer(fileRequest restapi.FileCreateR
 
 func (c *GoDFSClient) uploadChunkToAllReplicas(chunkInfo restapi.ChunkInfo, chunkData []byte) error {
 	var wg sync.WaitGroup
-	errs := make(chan error, len(chunkInfo.UploadUrl))
+	errs := make(chan error, len(chunkInfo.DataNodeUrls))
 
-	for _, uploadUrl := range chunkInfo.UploadUrl {
+	for _, uploadUrl := range chunkInfo.DataNodeUrls {
 		wg.Add(1)
 		go func(url string) {
 			defer wg.Done()
@@ -134,14 +134,14 @@ func (c *GoDFSClient) uploadChunkToAllReplicas(chunkInfo restapi.ChunkInfo, chun
 
 	wg.Wait()
 	close(errs)
-	
+
 	var outErrs []string
-    for e := range errs {
-        outErrs = append(outErrs, e.Error())
-    }
+	for e := range errs {
+		outErrs = append(outErrs, e.Error())
+	}
 	if len(outErrs) > 0 {
-        return fmt.Errorf("one or more uploads failed: %s", strings.Join(outErrs, "; "))
-    }
+		return fmt.Errorf("one or more uploads failed: %s", strings.Join(outErrs, "; "))
+	}
 	return nil
 }
 
@@ -163,7 +163,7 @@ func (c *GoDFSClient) uploadChunk(url string, filename string, chunkData []byte)
 		return fmt.Errorf("close multipart writer: %w", err)
 	}
 
-	req, err := http.NewRequest("POST", url + "/v1/chunk/upload", &b)
+	req, err := http.NewRequest("POST", url+"/v1/chunk/upload", &b)
 	if err != nil {
 		return fmt.Errorf("create upload request: %w", err)
 	}

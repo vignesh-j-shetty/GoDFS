@@ -66,3 +66,15 @@ func (mds MetaDataService) CreateFiles(path string, fileName string, fileSize ui
 	}
 	return chunkAllocationInfo, nil
 }
+
+func (mds MetaDataService) GetFileChunkList(path string) ([]string, error) {
+	fileMetaData, err := mds.handler.GetFileMetaData(path)
+	if err != nil {
+		return nil, err
+	}
+	chunkList := make([]string, len(fileMetaData))
+	for i, chunk := range fileMetaData {
+		chunkList[i] = chunk.ChunkID
+	}
+	return chunkList, nil
+}

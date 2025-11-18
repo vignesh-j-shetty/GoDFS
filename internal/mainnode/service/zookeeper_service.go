@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"sort"
+	"strings"
 	"sync"
 	"time"
 	"github.com/go-zookeeper/zk"
@@ -17,6 +18,8 @@ type ZookeeperService struct {
 	evCh   <-chan zk.Event
 	config config.Config
 	DataNode[] model.DataNodeInfo
+	dataNodeInfo map[string]model.DataNodeInfo
+	chunkToDataNode map[string][]model.DataNodeInfo
 }
 
 func NewZookeeperService(config config.Config) (*ZookeeperService, error) {
@@ -31,6 +34,7 @@ func NewZookeeperService(config config.Config) (*ZookeeperService, error) {
 		conn:   conn,
 		evCh:   evCh,
 		config: config,
+		dataNodeInfo: make(map[string]model.DataNodeInfo),
 	}, nil
 }
 
@@ -47,6 +51,8 @@ func (s *ZookeeperService) RunWatchLoop() {
 		defer wg.Done()
 		s.chunkFileWatcherLoop()
 	}()
+
+	wg.Wait()
 }
 
 func (service *ZookeeperService) nodeWatcherLoop() error {
@@ -61,6 +67,7 @@ func (service *ZookeeperService) nodeWatcherLoop() error {
 			return err
 		}
 		var dataNodeServers []model.DataNodeInfo
+		service.dataNodeInfo = make(map[string]model.DataNodeInfo)
 		for _, child := range children {
 			fullPath := commonconstants.ChunkServerPrefixPath + "/" + child
 			// Ignore stat
@@ -74,8 +81,8 @@ func (service *ZookeeperService) nodeWatcherLoop() error {
 			var chunkServerInfo model.DataNodeInfo
 			json.Unmarshal(data, &chunkServerInfo)
 			dataNodeServers = append(dataNodeServers, chunkServerInfo)
+			service.dataNodeInfo[child] = chunkServerInfo
 		}
-
 		sort.Slice(dataNodeServers, func(i, j int) bool {
 			return dataNodeServers[i].FreeSpace > dataNodeServers[j].FreeSpace
 		})
@@ -95,7 +102,8 @@ func (service *ZookeeperService) chunkFileWatcherLoop() error {
 		if err != nil {
 			return err
 		}
-
+		// Clear existing mapping
+		service.chunkToDataNode = make(map[string][]model.DataNodeInfo)
 		for _, child := range children {
 			fullPath := commonconstants.ChunkFilePrefixPath + "/" + child
 			data, _, err := service.conn.Get(fullPath)
@@ -105,10 +113,19 @@ func (service *ZookeeperService) chunkFileWatcherLoop() error {
 				continue
 			}
 
-			fmt.Printf("Chunk files for datanode %s : %s\n", child, string(data))
+			if len(data) == 0 {
+				fmt.Printf("chunk file data is empty for %s\n", fullPath)
+			}
+			
+			dataNodeList := strings.Split(string(data), ",")
+			var dataNodes []model.DataNodeInfo
+			for _, nodeID := range dataNodeList {
+				if nodeInfo, ok := service.dataNodeInfo[nodeID]; ok {
+					dataNodes = append(dataNodes, nodeInfo)
+				}
+			}
+			service.chunkToDataNode[child] = dataNodes
 		}
-
-		fmt.Printf("Current chunk files in the system: %v\n", children)
 		<-ch
 	}
 }
@@ -131,4 +148,8 @@ func (s *ZookeeperService) ensurePath(path string) error {
 
 func (s *ZookeeperService) GetActiveDatanodes() []model.DataNodeInfo {
 	return s.DataNode
+}
+
+func (s *ZookeeperService) GetDataNodeForChunk(chunkID string) []model.DataNodeInfo {
+	return s.chunkToDataNode[chunkID]
 }

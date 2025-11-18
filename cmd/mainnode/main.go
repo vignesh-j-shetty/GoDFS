@@ -26,7 +26,7 @@ func main() {
 	folderOps := handler.NewFolderOpsHandler(&metadataService)
 	folderOps.InitRoutes(r)
 
-	fileOps := handler.NewFileOpsHandler(&metadataService)
+	fileOps := handler.NewFileOpsHandler(&metadataService, ZookeeperService)
 	fileOps.InitRoutes(r)
 	
 	var wg sync.WaitGroup

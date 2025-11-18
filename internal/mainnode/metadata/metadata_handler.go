@@ -122,7 +122,13 @@ func (fileMetaDataHandler *MetaDataHandler) GetFolderContents(path string) ([]st
 	return content, nil
 }
 
-
-func (fileMetaDataHandler *MetaDataHandler) saveSnapshot(writer io.Writer) {
-	fileMetaDataHandler.serilizer.Encode(fileMetaDataHandler.root, writer)
+func (fileMetaDataHandler *MetaDataHandler) GetFileMetaData(path string) ([]FileMetaData, error) {
+	inode, err := fileMetaDataHandler.GetINodeFromPath(path)
+	if err != nil {
+		return nil, err
+	}
+	if inode.IsDir {
+		return nil, ErrInvalidOperation
+	}
+	return inode.FileMetaData, nil
 }

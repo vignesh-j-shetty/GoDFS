@@ -1,7 +1,7 @@
 package restapi
 
 type FolderRequest struct {
-	Path string `json:"path"`
+	Path       string `json:"path"`
 	FolderName string `json:"folderName"`
 }
 
@@ -10,18 +10,26 @@ type FolderContentList struct {
 }
 
 type FileCreateRequest struct {
-	Path string `json:"path"`
+	Path     string `json:"path"`
 	FileName string `json:"fileName"`
-	Size uint64 `json:"fileSize"`
+	Size     uint64 `json:"fileSize"`
 }
 
 type Response struct {
 	Status string `json:"status"`
-	Error string `json:"error"`
-	Data any `json:"data"`
+	Error  string `json:"error"`
+	Data   any    `json:"data"`
 }
 
 type ChunkInfo struct {
-	ChunkId string `json:"chunkId"`
-	UploadUrl []string `json:"uploadUrl"`
+	ChunkId      string   `json:"chunkId"`
+	DataNodeUrls []string `json:"dataNodeUrls"`
+}
+
+type GetFileInfoRequest struct {
+	Path string `json:"filePath"`
+}
+
+type FileChunkInfoResponse struct {
+	ChunkInfoList []ChunkInfo `json:"chunkInfoList"`
 }

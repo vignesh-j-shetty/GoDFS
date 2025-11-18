@@ -11,16 +11,19 @@ import (
 
 type FileOpsHandler struct {
 	MetaDataHandler *service.MetaDataService
+	zookeeperService *service.ZookeeperService
 }
 
-func NewFileOpsHandler(metaDataService *service.MetaDataService) FileOpsHandler {
+func NewFileOpsHandler(metaDataService *service.MetaDataService, zookeeperService *service.ZookeeperService) FileOpsHandler {
 	return FileOpsHandler{
 		MetaDataHandler: metaDataService,
+		zookeeperService: zookeeperService,
 	}
 }
 
 func (f *FileOpsHandler) InitRoutes(r *gin.Engine) {
 	r.POST("/v1/file/create", f.createNewFile)
+	r.POST("/v1/file/chunkinfo", f.getFileChunkInfo)
 }
 
 func (f *FileOpsHandler) createNewFile(ctx *gin.Context) {
@@ -50,14 +53,53 @@ func (f *FileOpsHandler) createNewFile(ctx *gin.Context) {
 			uploadUrls = append(uploadUrls, DataNodeID.UploadUrl)
 		}
 		chunkUploadInfoList = append(chunkUploadInfoList, restapi.ChunkInfo{
-			ChunkId:   chunkLocation.ChunkID,
-			UploadUrl: uploadUrls,
+			ChunkId:      chunkLocation.ChunkID,
+			DataNodeUrls: uploadUrls,
 		})
 	}
 
 	resp := restapi.Response{
 		Status: commonconstants.SUCCESS_STATUS,
 		Data:   chunkUploadInfoList,
+	}
+	ctx.JSON(http.StatusAccepted, resp)
+}
+
+func (f *FileOpsHandler) getFileChunkInfo(ctx *gin.Context) {
+	var fileChunkInfoRequest restapi.GetFileInfoRequest
+	if !bindOrAbort(ctx, &fileChunkInfoRequest) {
+		return
+	}
+
+	chunkInfo, err := f.MetaDataHandler.GetFileChunkList(fileChunkInfoRequest.Path)
+	if err != nil {
+		resp := restapi.Response{
+			Status: commonconstants.FAILURE_STATUS,
+			Error:  err.Error(),
+			Data:   nil,
+		}
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	var dataNodeInfo []restapi.ChunkInfo
+
+	for _, chunk := range chunkInfo {
+		chunkLocationInfo := f.zookeeperService.GetDataNodeForChunk(chunk)
+		if len(chunkLocationInfo) == 0 {
+			dataNodeInfo = append(dataNodeInfo, restapi.ChunkInfo{
+				ChunkId: "Null",
+			})
+		} else {
+			dataNodeInfo = append(dataNodeInfo, restapi.ChunkInfo{
+				ChunkId: chunkLocationInfo[0].Id,
+			})
+		}
+
+	}
+	resp := restapi.Response{
+		Status: commonconstants.SUCCESS_STATUS,
+		Data:   dataNodeInfo,
 	}
 	ctx.JSON(http.StatusAccepted, resp)
 }
