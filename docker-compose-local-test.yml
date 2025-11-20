@@ -1,0 +1,112 @@
+services:  
+  mainnode:
+    container_name: mainnode
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: mainnode-runtime
+    environment:
+      - ZOOKEEPER_SERVERS=zoo1:2181,zoo2:2181,zoo3:2181
+      - CHUNK_SIZE=1
+      - METADATA_SERVER=http://localhost:8080
+      - DEFAULT_CONCURRENCY=4
+    ports:
+      - "8080:8080"
+  datanode-1:
+    container_name: datanode1
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: datanode-runtime
+    volumes:
+    - datanode1:/root/uploads:rw
+    ports:
+      - "8081:8080"
+    environment:
+      - ZOOKEEPER_SERVERS=zoo1:2181,zoo2:2181,zoo3:2181
+      - CHUNK_FILE_PATH=/root/uploads
+      - MAX_STORAGE_SIZE_MB=1024
+      - MAINNODE_RPC_URL=http://localhost.com
+      - UPLOAD_URL=http://localhost:8081
+  datanode-2:
+    container_name: datanode2
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: datanode-runtime
+    volumes:
+    - datanode2:/root/uploads:rw
+    ports:
+      - "8082:8080"
+    environment:
+      - ZOOKEEPER_SERVERS=zoo1:2181,zoo2:2181,zoo3:2181
+      - CHUNK_FILE_PATH=/root/uploads
+      - MAX_STORAGE_SIZE_MB=1024
+      - MAINNODE_RPC_URL=http://localhost.com
+      - UPLOAD_URL=http://localhost:8082
+    
+  datanode-3:
+    container_name: datanode3
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: datanode-runtime
+    volumes:
+    - datanode3:/root/uploads:rw
+    ports:
+      - "8083:8080"
+    environment:
+      - ZOOKEEPER_SERVERS=zoo1:2181,zoo2:2181,zoo3:2181
+      - CHUNK_FILE_PATH=/root/uploads
+      - MAX_STORAGE_SIZE_MB=1024
+      - MAINNODE_RPC_URL=http://localhost.com
+      - UPLOAD_URL=http://localhost:8083
+  zoo1:
+    image: zookeeper:3.9.4
+    hostname: zoo1
+    container_name: zoo1
+    ports:
+      - "2181:2181"
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=0.0.0.0:2888:3888;2181 server.2=zoo2:2888:3888;2181 server.3=zoo3:2888:3888;2181
+      ZOO_4LW_COMMANDS_WHITELIST: stat,ruok,conf,mntr
+    volumes:
+      - ./data/zoo1/datalog:/datalog
+      - ./data/zoo1/data:/data
+
+  # --- Zookeeper Node 2 ---
+  zoo2:
+    image: zookeeper:3.9.4
+    hostname: zoo2
+    container_name: zoo2
+    ports:
+      - "2182:2181"
+    environment:
+      ZOO_MY_ID: 2
+      ZOO_SERVERS: server.1=zoo1:2888:3888;2181 server.2=0.0.0.0:2888:3888;2181 server.3=zoo3:2888:3888;2181
+      ZOO_4LW_COMMANDS_WHITELIST: stat,ruok,conf,mntr
+    volumes:
+      - ./data/zoo2/datalog:/datalog
+      - ./data/zoo2/data:/data
+
+  zoo3:
+    image: zookeeper:3.9.4
+    hostname: zoo3
+    container_name: zoo3
+    ports:
+      - "2183:2181"
+    environment:
+      ZOO_MY_ID: 3
+      ZOO_SERVERS: server.1=zoo1:2888:3888;2181 server.2=zoo2:2888:3888;2181 server.3=0.0.0.0:2888:3888;2181
+      ZOO_4LW_COMMANDS_WHITELIST: stat,ruok,conf,mntr
+    volumes:
+      - ./data/zoo3/datalog:/datalog
+      - ./data/zoo3/data:/data
+volumes:
+  datanode1:
+    external: true
+  datanode2:
+    external: true
+  datanode3:
+    external: true
